@@ -1,0 +1,4 @@
+C:\Users\ryans\Documents\GHPC_Modding_Stuff\Harder_Maps\obj\Debug\Hard_Mode.csproj.AssemblyReference.cache
+C:\Users\ryans\Documents\GHPC_Modding_Stuff\Harder_Maps\obj\Debug\Hard_Mode.csproj.CoreCompileInputs.cache
+C:\Program Files (x86)\Steam\steamapps\common\Gunner HEAT PC\Bin\Mods\Hard_Mode.dll
+C:\Users\ryans\Documents\GHPC_Modding_Stuff\Harder_Maps\obj\Debug\Hard_Mode.dll
