@@ -54,6 +54,10 @@ namespace Hard_Mode {
 public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
       LoggerInstance.Msg($"Loaded scene {sceneName}, trying to patch game...");
 
+      StateController.RunOrDefer(GameState.GameReady,
+                                 new GameStateEventHandler(StartBlueLogger),
+                                 GameStatePriority.Medium);
+
       if (!_sceneSpawns.TryGetValue(sceneName, out var getSpawns))
         return;
 
@@ -165,6 +169,39 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
     }
 
 
+
+    private IEnumerator StartBlueLogger(GameState _)
+    {
+        MelonCoroutines.Start(LogBlueVehiclePositions());
+        yield break;
+    }
+
+    private IEnumerator LogBlueVehiclePositions()
+    {
+        MelonLogger.Msg("Logger started");
+        while (true)
+        {
+            foreach (var v in GameObject.FindObjectsByType<Vehicle>(FindObjectsSortMode.None))
+            {
+                if (v.Allegiance == Faction.Blue && ((v.Neutralized == false && v.UnitIncapacitated == false) && v.Abandoned == false)) 
+                MelonLogger.Msg($"[BluePos] {v.gameObject.name}: {v.transform.position}");
+            }
+            yield return new WaitForSeconds(5f);
+        }
+    }
+    private IEnumerator LogRedVehiclePositions()
+    {
+        MelonLogger.Msg("Red Logger started");
+        while (true)
+        {
+            foreach (var v in GameObject.FindObjectsByType<Vehicle>(FindObjectsSortMode.None))
+            {
+                if (v.Allegiance == Faction.Red && ((v.Neutralized == false && v.UnitIncapacitated == false) && v.Abandoned == false)) 
+                MelonLogger.Msg($"[RedPos] {v.gameObject.name}: {v.transform.position}");
+            }
+            yield return new WaitForSeconds(5f);
+        }
+    }
 
     private IEnumerator OnGameReady(GameState _) {
       if (_done)

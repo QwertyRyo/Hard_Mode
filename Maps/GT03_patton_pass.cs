@@ -3,6 +3,10 @@ using GHPC.Mission.Data;
 using System.Collections.Generic;
 using UnityEngine;
 
+//1207.453 29.3617 388.6167 - 358.2837 174.4235 359.981
+//1214.816 28.4707 411.1635
+//1199.933 27.3523 443.1486
+
 namespace Hard_Mode
 {
     public static class GT03_patton_pass
@@ -32,6 +36,36 @@ namespace Hard_Mode
                 Rotation = Quaternion.Euler(356.1756f, 152.4979f, 358.6177f),
                 Allegiance = Faction.Red,
                 DisplayName = "T-55A 3 Modded"
+            },
+            new SpawnEntry
+            {
+                PrefabName = "T55A",
+                Position = new Vector3(1207.453f, 29.3617f, 388.6167f),
+                Rotation = Quaternion.Euler(358.2837f, 174.4235f, 359.981f),
+                Allegiance = Faction.Red,
+                DisplayName = "T-55A 4 Modded",
+                IsMobile = true,
+                MobileDelay = 60f
+            },
+            new SpawnEntry
+            {
+                PrefabName = "T55A",
+                Position = new Vector3(1214.816f, 28.4707f, 411.1635f),
+                Rotation = Quaternion.Euler(358.2837f, 174.4235f, 359.981f),
+                Allegiance = Faction.Red,
+                DisplayName = "T-55A 5 Modded",
+                IsMobile = true,
+                MobileDelay = 60f
+            },
+            new SpawnEntry
+            {
+                PrefabName = "T55A",
+                Position = new Vector3(1199.933f, 27.3523f, 443.1486f),
+                Rotation = Quaternion.Euler(358.2837f, 174.4235f, 359.981f),
+                Allegiance = Faction.Red,
+                DisplayName = "T-55A 6 Modded",
+                IsMobile = true,
+                MobileDelay = 60f
             },
             new SpawnEntry
             {
