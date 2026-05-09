@@ -95,143 +95,74 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
     private List<SpawnEntry> _pendingSpawns;
 
     
-    private IEnumerator AIWaypointRedirectInit(GameState _)
-{
-    Vehicle m1ipVehicle = null;
-    Vehicle targetVehicle = null;
-    Vehicle[] allVehicles = GameObject.FindObjectsByType<Vehicle>(FindObjectsSortMode.None);
-
-    MelonLogger.Msg($"AIWaypointRedirectInit: searching {allVehicles.Length} vehicles.");
-    foreach (var v in allVehicles)
+    private IEnumerator MobileSpawnTrackM1IP(Vehicle targetVehicle, float delay)
     {
-        if (v.gameObject.name == "M1IP 13")
-            m1ipVehicle = v;
-        if (v.gameObject.name == "T-80B 1 Modded")
-            targetVehicle = v;
-    }
+        // Wait until the Planning phase ends
+        while (MissionStateController.CurrentState == MissionState.Planning)
+            yield return null;
 
-    if (m1ipVehicle == null)
-    {
-        MelonLogger.Msg("AIWaypointRedirectInit: M1IP vehicle not found.");
-        yield break;
-    }
-    MelonLogger.Msg($"AIWaypointRedirectInit: M1IP found at {m1ipVehicle.transform.position}.");
+        // Wait the configured delay from end of planning
+        float startTime = SceneController.MissionTime;
+        while (SceneController.MissionTime - startTime < delay)
+            yield return null;
 
-    if (targetVehicle == null)
-    {
-        MelonLogger.Msg("AIWaypointRedirectInit: T-80B 1 Modded not found.");
-        yield break;
-    }
-    MelonLogger.Msg("AIWaypointRedirectInit: T-80B 1 Modded found.");
+        MelonLogger.Msg($"MobileSpawn: {targetVehicle.gameObject.name} activating after {delay}s delay.");
 
-    DriverAIController aiController = targetVehicle.GetComponent<DriverAIController>();
-    if (aiController == null)
-    {
-        MelonLogger.Msg("AIWaypointRedirectInit: T-80B 1 Modded has no DriverAIController.");
-        yield break;
-    }
-
-    // Create a new GameObject to host the TransformWaypoint
-    GameObject waypointGo = new GameObject("DynamicWaypoint_T80B");
-    waypointGo.transform.position = m1ipVehicle.transform.position;
-
-    TransformWaypoint waypoint = waypointGo.AddComponent<TransformWaypoint>();
-    if (waypoint == null)
-    {
-        MelonLogger.Msg("AIWaypointRedirectInit: AddComponent<TransformWaypoint> returned null.");
-        yield break;
-    }
-
-    waypoint.MaxSpeed = -1f;
-    waypoint.CompletionRadius = 2f;
-    waypoint.AvoidObstacles = true;
-    waypoint.FollowMode = WaypointHolder.FollowModes.Automatic;
-
-    MelonCoroutines.Start(RedirectToM1IP(aiController, m1ipVehicle, waypoint));
-}
-
-//unused
-private IEnumerator MonitorDriverFlags(DriverAIController aiController)
-{
-    bool lastFireSpeedStop = aiController.FireSpeedStop;
-    bool lastStopAndEngaging = aiController.StopAndEngaging;
-
-    MelonLogger.Msg($"[FlagMonitor] Initial — FireSpeedStop: {lastFireSpeedStop}, StopAndEngaging: {lastStopAndEngaging}");
-
-    while (aiController != null)
-    {
-        bool currentFireSpeedStop = aiController.FireSpeedStop;
-        bool currentStopAndEngaging = aiController.StopAndEngaging;
-
-        if (currentFireSpeedStop != lastFireSpeedStop)
+        // Find the player's M1IP
+        Vehicle m1ipVehicle = null;
+        foreach (var v in GameObject.FindObjectsByType<Vehicle>(FindObjectsSortMode.None))
         {
-            //MelonLogger.Msg($"[FlagMonitor] FireSpeedStop changed: {lastFireSpeedStop} -> {currentFireSpeedStop}");
-            lastFireSpeedStop = currentFireSpeedStop;
+            if (v.gameObject.name.Contains("M1IP")) { m1ipVehicle = v; break; }
         }
 
-        if (currentStopAndEngaging != lastStopAndEngaging)
+        if (m1ipVehicle == null)
         {
-            MelonLogger.Msg($"[FlagMonitor] StopAndEngaging changed: {lastStopAndEngaging} -> {currentStopAndEngaging}");
-            lastStopAndEngaging = currentStopAndEngaging;
+            MelonLogger.Msg($"MobileSpawn: M1IP not found for {targetVehicle.gameObject.name}.");
+            yield break;
         }
 
-        yield return null; // check every frame
-    }
-}
+        DriverAIController aiController = targetVehicle.GetComponent<DriverAIController>();
+        if (aiController == null)
+        {
+            MelonLogger.Msg($"MobileSpawn: No DriverAIController on {targetVehicle.gameObject.name}.");
+            yield break;
+        }
 
-private IEnumerator RedirectToM1IP(DriverAIController aiController, Vehicle m1ipVehicle, TransformWaypoint waypoint)
-{
-    while (MissionStateController.CurrentState == MissionState.Planning)
-        yield return null;
-    float startTime = SceneController.MissionTime;
-    while(SceneController.MissionTime - startTime < 20f)
-      {
-        yield return null;
-      }
-    MelonLogger.Msg("20s elapsed; searching now");
+        GameObject waypointGo = new GameObject($"DynamicWaypoint_{targetVehicle.gameObject.name}");
+        waypointGo.transform.position = m1ipVehicle.transform.position;
+        TransformWaypoint waypoint = waypointGo.AddComponent<TransformWaypoint>();
 
-    if (aiController.crewManager != null)
-    {
-        MelonLogger.Msg($"crewManager.Unit null? {aiController.crewManager.Unit == null}");
-        var driverBrain = aiController.crewManager.GetCrewBrain(CrewPosition.Driver);
-        MelonLogger.Msg($"DriverBrain null? {driverBrain == null}");
-    }
+        waypoint.MaxSpeed = -1f;
+        waypoint.CompletionRadius = 2f;
+        waypoint.AvoidObstacles = true;
+        waypoint.FollowMode = WaypointHolder.FollowModes.Automatic;
 
-    try
-    {
-        aiController.SetupDriverController();
-    }
-    catch (Exception ex)
-    {
-        MelonLogger.Error($"SetupDriverController threw: {ex}");
-        yield break;
-    }
+        try { aiController.SetupDriverController(); }
+        catch (Exception ex)
+        {
+            MelonLogger.Error($"MobileSpawn SetupDriverController threw: {ex}");
+            yield break;
+        }
+
         aiController.TargetSpeed = 50f;
-      
-    //MelonCoroutines.Start(MonitorDriverFlags(aiController));
 
+        try { aiController.StartDriveToWaypoint(waypoint); }
+        catch (Exception ex)
+        {
+            MelonLogger.Error($"MobileSpawn StartDriveToWaypoint threw: {ex}");
+            yield break;
+        }
 
+        MelonLogger.Msg($"MobileSpawn: {targetVehicle.gameObject.name} now tracking M1IP.");
 
-    try
-    {
-        aiController.StartDriveToWaypoint(waypoint);
+        while (aiController != null && m1ipVehicle != null && waypoint != null)
+        {
+            waypoint.Position = m1ipVehicle.transform.position;
+            yield return new WaitForSeconds(3f);
+        }
+
+        if (waypoint != null) GameObject.Destroy(waypoint.gameObject);
     }
-    catch (Exception ex)
-    {
-        MelonLogger.Error($"StartDriveToWaypoint threw: {ex}");
-        yield break;
-    }
-
-    MelonLogger.Msg("T-80B 1 Modded now tracking M1IP position via TransformWaypoint.");
-
-    while (aiController != null && m1ipVehicle != null && waypoint != null)
-    {
-        waypoint.Position = m1ipVehicle.transform.position;
-        yield return new WaitForSeconds(3f);
-    }
-
-    if (waypoint != null) GameObject.Destroy(waypoint.gameObject);
-}
 
 
 
@@ -280,9 +211,15 @@ private IEnumerator RedirectToM1IP(DriverAIController aiController, Vehicle m1ip
 
         unit.Targetable = true;
         LoggerInstance.Msg($"{entry.DisplayName} spawned successfully");
+
+        if (entry.IsMobile) {
+          if (unit is Vehicle vehicle)
+            MelonCoroutines.Start(MobileSpawnTrackM1IP(vehicle, entry.MobileDelay));
+          else
+            LoggerInstance.Error($"MobileSpawn: {entry.DisplayName} could not be cast to Vehicle.");
+        }
       }
 
-      MelonCoroutines.Start(AIWaypointRedirectInit(GameState.GameReady));
       yield break;
     }
   }

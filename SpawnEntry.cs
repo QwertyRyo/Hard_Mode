@@ -11,5 +11,7 @@ namespace Hard_Mode
         public Quaternion Rotation;
         public Faction Allegiance;
         public string DisplayName;
+        public bool IsMobile;     // if true, unit pursues the M1IP after MobileDelay seconds
+        public float MobileDelay; // seconds after Planning phase ends before tracking begins
     }
 }

@@ -15,6 +15,9 @@ using UnityEngine;
 
 
 */
+
+//add IsMobile = true if you want them to be mobile
+
 namespace Hard_Mode
 {
     public static class GT03_abrams_alley
@@ -23,11 +26,76 @@ namespace Hard_Mode
         {
             new SpawnEntry
             {
+                PrefabName = "T64B",
+                Position = new Vector3(2332.59f, 53.8328f, -730.5155f),
+                Rotation = Quaternion.Euler(3.5814f, 171.9519f, 355.1928f),
+                Allegiance = Faction.Red,
+                DisplayName = "T-64B 1 Modded",
+                IsMobile = true,
+                MobileDelay = 150f
+            },
+
+new SpawnEntry
+            {
+                PrefabName = "T64B",
+                Position = new Vector3(2356.578f, 56.0576f, -731.1284f),
+                Rotation = Quaternion.Euler(2.5834f, 272.0554f, 1.2375f),
+                Allegiance = Faction.Red,
+                DisplayName = "T-64B 2 Modded",
+                IsMobile = true,
+                MobileDelay = 150f
+            },
+
+new SpawnEntry
+            {
+                PrefabName = "T64A81",
+                Position = new Vector3(2372.19f, 57.3358f, -723.3718f),
+                Rotation = Quaternion.Euler(2.5834f, 272.0554f, 1.2375f),
+                Allegiance = Faction.Red,
+                DisplayName = "T-64B 3 Modded",
+                IsMobile = true,
+                MobileDelay = 150f
+            },
+
+new SpawnEntry
+            {
+                PrefabName = "T64A81",
+                Position = new Vector3(2907.796f, 110.0468f, -1444.781f),
+                Rotation = Quaternion.Euler(2.5834f, 272.0554f, 1.2375f),
+                Allegiance = Faction.Red,
+                DisplayName = "T-64A81 1 Modded",
+                IsMobile = true,
+                MobileDelay = 75f
+            },
+            new SpawnEntry
+            {
+                PrefabName = "T64A81",
+                Position = new Vector3(2843.651f, 106.4847f, -1417.385f),
+                Rotation = Quaternion.Euler(2.5834f, 272.0554f, 1.2375f),
+                Allegiance = Faction.Red,
+                DisplayName = "T-64A81 2 Modded",
+                IsMobile = true,
+                MobileDelay = 75f
+            },
+            new SpawnEntry
+            {
+                PrefabName = "T64A81",
+                Position = new Vector3(2868.581f, 107.8498f, -1423.585f),
+                Rotation = Quaternion.Euler(2.5834f, 272.0554f, 1.2375f),
+                Allegiance = Faction.Red,
+                DisplayName = "T-64A81 3 Modded",
+                IsMobile = true,
+                MobileDelay = 75f
+            },
+            new SpawnEntry
+            {
                 PrefabName = "T80B",
                 Position = new Vector3(2039.431f, 82.4362f, -1950.396f),
                 Rotation = Quaternion.Euler(0f, 270f, 0f),
                 Allegiance = Faction.Red,
-                DisplayName = "T-80B 1 Modded"
+                DisplayName = "T-80B 1 Modded",
+                //IsMobile = false,
+                MobileDelay = 20f
             }
             ,
             new SpawnEntry
