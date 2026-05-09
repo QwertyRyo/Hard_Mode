@@ -3,6 +3,18 @@ using GHPC.Mission.Data;
 using System.Collections.Generic;
 using UnityEngine;
 
+/*
+- possible spawn locations for qrf
+2907.796 110.0468 -1444.781 - first spawn dir 2.5834 272.0554 1.2375
+2843.651 106.4847 -1417.385
+2868.581 107.8498 -1423.585
+
+2332.59 53.8328 -730.5155
+2356.578 56.0576 -731.1284
+2372.19 57.3358 -723.3718 - second spawn dir 3.5814 171.9519 355.1928
+
+
+*/
 namespace Hard_Mode
 {
     public static class GT03_abrams_alley
@@ -17,30 +29,14 @@ namespace Hard_Mode
                 Allegiance = Faction.Red,
                 DisplayName = "T-80B 1 Modded"
             }
-            /*,
-            new SpawnEntry
-            {
-                PrefabName = "T80B",
-                Position = new Vector3(1226.373f, 69.8381f, -1607.632f),
-                Rotation = Quaternion.Euler(0.9459f, 220.2668f, 3.4797f),
-                Allegiance = Faction.Red,
-                DisplayName = "T-80B 2 Modded"
-            },
-            new SpawnEntry
-            {
-                PrefabName = "T80B",
-                Position = new Vector3(1264.383f, 67.8381f, -1592.641f),
-                Rotation = Quaternion.Euler(0f, 219.4734f, 2f),
-                Allegiance = Faction.Red,
-                DisplayName = "T-80B 3 Modded"
-            },
+            ,
             new SpawnEntry
             {
                 PrefabName = "T80B",
                 Position = new Vector3(1586.989f, 37.2426f, -820.2175f),
                 Rotation = Quaternion.Euler(359.6815f, 203.3798f, 359.7273f),
                 Allegiance = Faction.Red,
-                DisplayName = "T-80B 4 Modded"
+                DisplayName = "T-80B 2 Modded"
             },
             new SpawnEntry
             {
@@ -48,7 +44,7 @@ namespace Hard_Mode
                 Position = new Vector3(1559.244f, 36.9282f, -811.1731f),
                 Rotation = Quaternion.Euler(358.7519f, 191.9604f, 0.0392f),
                 Allegiance = Faction.Red,
-                DisplayName = "T-80B 5 Modded"
+                DisplayName = "T-80B 3 Modded"
             },
             new SpawnEntry
             {
@@ -56,7 +52,7 @@ namespace Hard_Mode
                 Position = new Vector3(1442.101f, 54.0921f, -2247.204f),
                 Rotation = Quaternion.Euler(0.0002f, 278.9434f, -0.0001f),
                 Allegiance = Faction.Red,
-                DisplayName = "T-80B 6 Modded"
+                DisplayName = "T-80B 4 Modded"
             },
             new SpawnEntry
             {
@@ -64,7 +60,7 @@ namespace Hard_Mode
                 Position = new Vector3(1442.854f, 57.3884f, -2219.696f),
                 Rotation = Quaternion.Euler(0.0002f, 278.9434f, 9.8545f),
                 Allegiance = Faction.Red,
-                DisplayName = "T-80B 7 Modded"
+                DisplayName = "T-80B 5 Modded"
             },
             new SpawnEntry
             {
@@ -72,7 +68,7 @@ namespace Hard_Mode
                 Position = new Vector3(979.5067f, 81.6688f, -1582.236f),
                 Rotation = Quaternion.Euler(5.7237f, 157.6201f, 0.7074f),
                 Allegiance = Faction.Red,
-                DisplayName = "T-80B 8 Modded"
+                DisplayName = "T-80B 6 Modded"
             },
             new SpawnEntry
             {
@@ -97,7 +93,7 @@ namespace Hard_Mode
                 Rotation = Quaternion.Euler(0.4542f, 231.8899f, 353.8273f),
                 Allegiance = Faction.Red,
                 DisplayName = "BMP-2 3"
-            }*/
+            }
         };
     }
 }
