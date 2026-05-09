@@ -15,183 +15,275 @@ using UnityEngine;
 using GHPC.AI.Sensors;
 using System.Reflection.Emit;
 using GHPC.AI;
+using GHPC.AI.Interfaces;
+using GHPC.AI.Platoons;
+using UnityEngine.Events;
+using Pathfinding;
+using GHPC.Crew;
+
+[assembly:MelonInfo(typeof(GMPC), "Hard Mode", "1.0.0", "Qwertyryo")]
+[assembly:MelonGame("Radian Simulations LLC", "GHPC")]
+/*available prefabs: M60A3TTS, T55A, T72M1, M2BRADLEY, M2BRADLEY(ALT), M901,
+ * M113, M113G, M151M232, M151, BRDM2, UAZ469, STATIC_TOW, STATIC_9K111,
+ * STATIC_SPG9, STATIC_SPG9_SA, T3485, TC, BMP1, URAL375D, M923, BMP2, LEO1A1,
+ * LEO1A1A2, LEO1A1A3, LEO1A1A4, LEO1A3, LEO1A3A1, LEO1A3A2, LEO1A3A3, T62,
+ * T64R, T64A74, T64A79, T64A81, T64A, T64A84, T64B, T64B81, T64B1, T64B181,
+ * T72M, M60A1RISEP, M60A1RISEP77, M60A1, M60A1AOS, M60A3, M1, M1IP, T72GILLS,
+ * T72UV1, T72UV2, T72ULEM, T72, SquadUnit_US_PASGT, SquadUnit_GDR, BMP1P,
+ * BMP1P_SA, STATIC_9K111_SA, BMP1_SA, BMP2_SA, BRDM2_SA, BTR60PB, BTR60PB_SA,
+ * URAL375D_SA, PT76B, T80B, T54A, BTR70, AH1, MI2, Mi8T, Mi24, Mi24V_SA, OH58A,
+ * Mi24V_NVA, STATIC_SPG9_TRENCH, STATIC_SPG9_SA_TRENCH, STATIC_9K111_TRENCH,
+ * STATIC_9K111_SA_TRENCH, STATIC_TOW_TRENCH, AH1_rockets, Mi24_rockets,
+ * Mi24V_SA_rockets, Mi24V_NVA_rockets, RTS_CAMERA, MARDERA1, MARDERA1_NO_ATGM,
+ * MARDERA1PLUS, MARDER1A2*/
+namespace Hard_Mode {
 
 
-[assembly: MelonInfo(typeof(GMPC), "Hard Mode", "1.0.0", "Qwertyryo")]
-[assembly: MelonGame("Radian Simulations LLC", "GHPC")]
-/*available prefabs: M60A3TTS, T55A, T72M1, M2BRADLEY, M2BRADLEY(ALT), M901, M113, M113G, M151M232, M151, BRDM2, UAZ469, STATIC_TOW, STATIC_9K111, STATIC_SPG9, STATIC_SPG9_SA, T3485, TC, BMP1, URAL375D, M923, BMP2, LEO1A1, LEO1A1A2, LEO1A1A3, LEO1A1A4, LEO1A3, LEO1A3A1, LEO1A3A2, LEO1A3A3, T62, T64R, T64A74, T64A79, T64A81, T64A, T64A84, T64B, T64B81, T64B1, T64B181, T72M, M60A1RISEP, M60A1RISEP77, M60A1, M60A1AOS, M60A3, M1, M1IP, T72GILLS, T72UV1, T72UV2, T72ULEM, T72, SquadUnit_US_PASGT, SquadUnit_GDR, BMP1P, BMP1P_SA, STATIC_9K111_SA, BMP1_SA, BMP2_SA, BRDM2_SA, BTR60PB, BTR60PB_SA, URAL375D_SA, PT76B, T80B, T54A, BTR70, AH1, MI2, Mi8T, Mi24, Mi24V_SA, OH58A, Mi24V_NVA, STATIC_SPG9_TRENCH, STATIC_SPG9_SA_TRENCH, STATIC_9K111_TRENCH, STATIC_9K111_SA_TRENCH, STATIC_TOW_TRENCH, AH1_rockets, Mi24_rockets, Mi24V_SA_rockets, Mi24V_NVA_rockets, RTS_CAMERA, MARDERA1, MARDERA1_NO_ATGM, MARDERA1PLUS, MARDER1A2*/
-namespace Hard_Mode
-{
-    public class GMPC : MelonMod
-    {
-        private static readonly Dictionary<string, Func<List<SpawnEntry>>> _sceneSpawns =
-            new Dictionary<string, Func<List<SpawnEntry>>>()
-            {
-                { "GT03_abrams_alley", GT03_abrams_alley.Spawns },
-                { "GT03_patton_pass", GT03_patton_pass.Spawns }
-            };
+  public class GMPC : MelonMod {
+    private static readonly Dictionary<string, Func<List<SpawnEntry>>>
+        _sceneSpawns = new Dictionary<string, Func<List<SpawnEntry>>>() {
+          { "GT03_abrams_alley", GT03_abrams_alley.Spawns },
+          { "GT03_patton_pass", GT03_patton_pass.Spawns }
+        };
 
-        public override void OnInitializeMelon()
-        {
-            HarmonyInstance.PatchAll();
+    public override void OnInitializeMelon() {
+      HarmonyInstance.PatchAll();
+    }
+
+
+public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
+      LoggerInstance.Msg($"Loaded scene {sceneName}, trying to patch game...");
+
+      if (!_sceneSpawns.TryGetValue(sceneName, out var getSpawns))
+        return;
+
+      _done = false;
+      _pendingSpawns = getSpawns();
+      StateController.RunOrDefer(GameState.GameReady,
+                                 new GameStateEventHandler(OnGameReady),
+                                 GameStatePriority.Medium);
+    }
+
+    [HarmonyPatch(typeof(TankTargetSensor),
+                  nameof(TankTargetSensor.IsTargetVisible))]
+
+    //Increases the range at which AI will detect targets. 
+    public static class IsTargetVisiblePatch {
+      [HarmonyTranspiler]
+      static IEnumerable<CodeInstruction> Transpiler(
+          IEnumerable<CodeInstruction> instructions) {
+        var codes = new List<CodeInstruction>(instructions);
+
+        for (int i = 0; i < codes.Count; i++) {
+          if (codes[i].opcode == OpCodes.Ldc_R4 &&
+              (float)codes[i].operand == 30f) {
+            codes[i].operand = 180f;
+          }
+
+          // 250000f (500m squared) -> 1000000f (1000m squared)
+          if (codes[i].opcode == OpCodes.Ldc_R4 &&
+              (float)codes[i].operand == 250000f) {
+            codes[i].operand = 1000000f;
+          }
         }
 
-        [HarmonyPatch(typeof(TankTargetSensor), nameof(TankTargetSensor.IsTargetVisible))]
-        public static class IsTargetVisiblePatch
-        {
-            [HarmonyTranspiler]
-            static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-            {
-                var codes = new List<CodeInstruction>(instructions);
+        return codes;
+      }
+    }
 
-                for (int i = 0; i < codes.Count; i++)
-                {
-                    if (codes[i].opcode == OpCodes.Ldc_R4 && (float)codes[i].operand == 30f)
-                    {
-                        codes[i].operand = 180f;
-                    }
+    private bool _done = false;
+    private List<SpawnEntry> _pendingSpawns;
 
-                    // 250000f (500m squared) -> 1000000f (1000m squared)
-                    if (codes[i].opcode == OpCodes.Ldc_R4 && (float)codes[i].operand == 250000f)
-                    {
-                        codes[i].operand = 1000000f;
-                    }
-                }
-
-                return codes;
-            }
-        }
-
-
-        private bool _done = false;
-        private List<SpawnEntry> _pendingSpawns;
-
-        public override void OnSceneWasLoaded(int buildIndex, string sceneName)
-        {
-            LoggerInstance.Msg($"Loaded scene {sceneName}, trying to patch game...");
-
-            if (!_sceneSpawns.TryGetValue(sceneName, out var getSpawns)) return;
-
-            _done = false;
-            _pendingSpawns = getSpawns();
-            StateController.RunOrDefer(
-                GameState.GameReady,
-                new GameStateEventHandler(OnGameReady),
-                GameStatePriority.Medium
-            );
-        StateController.RunOrDefer(GameState.GameReady, new GameStateEventHandler(AIWaypointRedirectInit), GameStatePriority.Medium);
-
-        }
-
-
+    
     private IEnumerator AIWaypointRedirectInit(GameState _)
-    {
-        Vehicle m1ipVehicle = null;
-        Vehicle[] allVehicles = GameObject.FindObjectsByType<Vehicle>(FindObjectsSortMode.None);
-        foreach (var v in allVehicles)
-        {
-            if (v.UniqueName == "M1IP Abrams")
-            {
-                m1ipVehicle = v;
-                break;
-            }
-        }
-
-        if (m1ipVehicle == null)
-        {
-            MelonLogger.Msg("M1IP vehicle not found.");
-            yield break;
-        }
-
-        foreach (var vehicle in allVehicles)
-        {
-            DriverAIController aiController = vehicle.GetComponent<DriverAIController>();
-            if (aiController == null) { continue; }
-            if (aiController.CurrentWaypoint == null)
-            {
-                MelonCoroutines.Start(WaitForWaypointThenRedirect(aiController, m1ipVehicle));
-            }
-        }
-    }
-
-    private IEnumerator WaitForWaypointThenRedirect(DriverAIController aiController, Vehicle m1ipVehicle)
-    {
-        while (aiController.CurrentWaypoint == null)
-        {
-            yield return null;
-        }
-
-        MelonLogger.Msg($"Waypoint assigned for {aiController.gameObject.name}, beginning redirect to M1IP position.");
-
-        while (aiController != null && aiController.CurrentWaypoint != null && m1ipVehicle != null)
-        {
-            aiController.CurrentWaypoint.Position = m1ipVehicle.transform.position;
-            MelonLogger.Msg($"Updating position");
-            yield return new WaitForSeconds(3f);
-        }
-    }
-
-        private IEnumerator OnGameReady(GameState _)
 {
-    if (_done) yield break;
-    _done = true;
+    Vehicle m1ipVehicle = null;
+    Vehicle targetVehicle = null;
+    Vehicle[] allVehicles = GameObject.FindObjectsByType<Vehicle>(FindObjectsSortMode.None);
 
-    var lookup = UnitSpawner.Instance.PrefabLookup;
-
-    foreach (var entry in _pendingSpawns)
+    MelonLogger.Msg($"AIWaypointRedirectInit: searching {allVehicles.Length} vehicles.");
+    foreach (var v in allVehicles)
     {
-        var meta = lookup.AllUnits.FirstOrDefault(u => u.Name == entry.PrefabName);
+        if (v.gameObject.name == "M1IP 13")
+            m1ipVehicle = v;
+        if (v.gameObject.name == "T-80B 1 Modded")
+            targetVehicle = v;
+    }
 
-        if (meta == null)
+    if (m1ipVehicle == null)
+    {
+        MelonLogger.Msg("AIWaypointRedirectInit: M1IP vehicle not found.");
+        yield break;
+    }
+    MelonLogger.Msg($"AIWaypointRedirectInit: M1IP found at {m1ipVehicle.transform.position}.");
+
+    if (targetVehicle == null)
+    {
+        MelonLogger.Msg("AIWaypointRedirectInit: T-80B 1 Modded not found.");
+        yield break;
+    }
+    MelonLogger.Msg("AIWaypointRedirectInit: T-80B 1 Modded found.");
+
+    DriverAIController aiController = targetVehicle.GetComponent<DriverAIController>();
+    if (aiController == null)
+    {
+        MelonLogger.Msg("AIWaypointRedirectInit: T-80B 1 Modded has no DriverAIController.");
+        yield break;
+    }
+
+    // Create a new GameObject to host the TransformWaypoint
+    GameObject waypointGo = new GameObject("DynamicWaypoint_T80B");
+    waypointGo.transform.position = m1ipVehicle.transform.position;
+
+    TransformWaypoint waypoint = waypointGo.AddComponent<TransformWaypoint>();
+    if (waypoint == null)
+    {
+        MelonLogger.Msg("AIWaypointRedirectInit: AddComponent<TransformWaypoint> returned null.");
+        yield break;
+    }
+
+    waypoint.MaxSpeed = -1f;
+    waypoint.CompletionRadius = 2f;
+    waypoint.AvoidObstacles = true;
+    waypoint.FollowMode = WaypointHolder.FollowModes.Automatic;
+
+    MelonCoroutines.Start(RedirectToM1IP(aiController, m1ipVehicle, waypoint));
+}
+
+//unused
+private IEnumerator MonitorDriverFlags(DriverAIController aiController)
+{
+    bool lastFireSpeedStop = aiController.FireSpeedStop;
+    bool lastStopAndEngaging = aiController.StopAndEngaging;
+
+    MelonLogger.Msg($"[FlagMonitor] Initial — FireSpeedStop: {lastFireSpeedStop}, StopAndEngaging: {lastStopAndEngaging}");
+
+    while (aiController != null)
+    {
+        bool currentFireSpeedStop = aiController.FireSpeedStop;
+        bool currentStopAndEngaging = aiController.StopAndEngaging;
+
+        if (currentFireSpeedStop != lastFireSpeedStop)
         {
-            LoggerInstance.Msg($"{entry.PrefabName} not found in unit lookup");
-            continue;
+            //MelonLogger.Msg($"[FlagMonitor] FireSpeedStop changed: {lastFireSpeedStop} -> {currentFireSpeedStop}");
+            lastFireSpeedStop = currentFireSpeedStop;
+        }
+
+        if (currentStopAndEngaging != lastStopAndEngaging)
+        {
+            MelonLogger.Msg($"[FlagMonitor] StopAndEngaging changed: {lastStopAndEngaging} -> {currentStopAndEngaging}");
+            lastStopAndEngaging = currentStopAndEngaging;
+        }
+
+        yield return null; // check every frame
+    }
+}
+
+private IEnumerator RedirectToM1IP(DriverAIController aiController, Vehicle m1ipVehicle, TransformWaypoint waypoint)
+{
+    while (MissionStateController.CurrentState == MissionState.Planning)
+        yield return null;
+    float startTime = SceneController.MissionTime;
+    while(SceneController.MissionTime - startTime < 20f)
+      {
+        yield return null;
+      }
+    MelonLogger.Msg("20s elapsed; searching now");
+
+    if (aiController.crewManager != null)
+    {
+        MelonLogger.Msg($"crewManager.Unit null? {aiController.crewManager.Unit == null}");
+        var driverBrain = aiController.crewManager.GetCrewBrain(CrewPosition.Driver);
+        MelonLogger.Msg($"DriverBrain null? {driverBrain == null}");
+    }
+
+    try
+    {
+        aiController.SetupDriverController();
+    }
+    catch (Exception ex)
+    {
+        MelonLogger.Error($"SetupDriverController threw: {ex}");
+        yield break;
+    }
+        aiController.TargetSpeed = 50f;
+      
+    //MelonCoroutines.Start(MonitorDriverFlags(aiController));
+
+
+
+    try
+    {
+        aiController.StartDriveToWaypoint(waypoint);
+    }
+    catch (Exception ex)
+    {
+        MelonLogger.Error($"StartDriveToWaypoint threw: {ex}");
+        yield break;
+    }
+
+    MelonLogger.Msg("T-80B 1 Modded now tracking M1IP position via TransformWaypoint.");
+
+    while (aiController != null && m1ipVehicle != null && waypoint != null)
+    {
+        waypoint.Position = m1ipVehicle.transform.position;
+        yield return new WaitForSeconds(3f);
+    }
+
+    if (waypoint != null) GameObject.Destroy(waypoint.gameObject);
+}
+
+
+
+    private IEnumerator OnGameReady(GameState _) {
+      if (_done)
+        yield break;
+      _done = true;
+
+      var lookup = UnitSpawner.Instance.PrefabLookup;
+
+      foreach (var entry in _pendingSpawns) {
+        var meta =
+            lookup.AllUnits.FirstOrDefault(u => u.Name == entry.PrefabName);
+
+        if (meta == null) {
+          LoggerInstance.Msg($"{entry.PrefabName} not found in unit lookup");
+          continue;
         }
 
         // resolve the prefab
         GameObject prefab = null;
-        if (meta.PrefabReference.Asset != null)
-        {
-            //LoggerInstance.Msg("null asset else NOT ran");
-            prefab = meta.PrefabReference.Asset as GameObject;
-        }
-        else
-        {
-            //LoggerInstance.Msg("null asset else ran");
-            var handle = meta.PrefabReference.LoadAssetAsync<GameObject>();
-            yield return handle;
-            prefab = handle.Result;
+        if (meta.PrefabReference.Asset != null) {
+          // LoggerInstance.Msg("null asset else NOT ran");
+          prefab = meta.PrefabReference.Asset as GameObject;
+        } else {
+          // LoggerInstance.Msg("null asset else ran");
+          var handle = meta.PrefabReference.LoadAssetAsync<GameObject>();
+          yield return handle;
+          prefab = handle.Result;
         }
 
-        if (prefab == null)
-        {
-            LoggerInstance.Msg($"{entry.PrefabName} prefab failed to load");
-            continue;
+        if (prefab == null) {
+          LoggerInstance.Msg($"{entry.PrefabName} prefab failed to load");
+          continue;
         }
 
-        var unit = UnitSpawner.Instance.SpawnUnit(
-            prefab,
-            new UnitMetaData()
-            {
-                Allegiance = entry.Allegiance,
-                Position = entry.Position,
-                Rotation = entry.Rotation,
-                Name = entry.DisplayName
-            }
-        );
+        var unit = UnitSpawner.Instance.SpawnUnit(prefab, new UnitMetaData() {
+          Allegiance = entry.Allegiance, Position = entry.Position,
+          Rotation = entry.Rotation, Name = entry.DisplayName
+        });
 
-        if (unit == null)
-        {
-            LoggerInstance.Error($"Failed to spawn {entry.DisplayName}");
-            continue;
+        if (unit == null) {
+          LoggerInstance.Error($"Failed to spawn {entry.DisplayName}");
+          continue;
         }
 
         unit.Targetable = true;
         LoggerInstance.Msg($"{entry.DisplayName} spawned successfully");
-    }
+      }
 
-    yield break;
-}
-
+      MelonCoroutines.Start(AIWaypointRedirectInit(GameState.GameReady));
+      yield break;
     }
+  }
 }

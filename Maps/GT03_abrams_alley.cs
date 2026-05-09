@@ -9,14 +9,15 @@ namespace Hard_Mode
     {
         public static List<SpawnEntry> Spawns() => new List<SpawnEntry>
         {
-            /*new SpawnEntry
+            new SpawnEntry
             {
                 PrefabName = "T80B",
                 Position = new Vector3(2039.431f, 82.4362f, -1950.396f),
                 Rotation = Quaternion.Euler(0f, 270f, 0f),
                 Allegiance = Faction.Red,
                 DisplayName = "T-80B 1 Modded"
-            },
+            }
+            /*,
             new SpawnEntry
             {
                 PrefabName = "T80B",
