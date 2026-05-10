@@ -57,8 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
-    <Compile Include="Maps\GT03_abrams_alley.cs" />
-    <Compile Include="Maps\GT03_patton_pass.cs" />
+    <Compile Include="Maps\*.cs" />
 
     <Compile Include="Hard_Mode.cs" />
     <Compile Include="SpawnEntry.cs" />

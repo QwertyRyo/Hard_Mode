@@ -43,7 +43,10 @@ namespace Hard_Mode {
     private static readonly Dictionary<string, Func<List<SpawnEntry>>>
         _sceneSpawns = new Dictionary<string, Func<List<SpawnEntry>>>() {
           { "GT03_abrams_alley", GT03_abrams_alley.Spawns },
-          { "GT03_patton_pass", GT03_patton_pass.Spawns }
+          { "GT03_patton_pass", GT03_patton_pass.Spawns },
+          { "GT03_Longer_Road_V2", GT03_Longer_Road_V2.Spawns},
+          { "GT03_gunnery_duel", GT03_gunnery_duel.Spawns},
+
         };
 
     public override void OnInitializeMelon() {
@@ -99,29 +102,38 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
     private List<SpawnEntry> _pendingSpawns;
 
     
-    private IEnumerator MobileSpawnTrackM1IP(Vehicle targetVehicle, float delay)
+    private static bool IsValidUnit(Vehicle v) =>
+        v.Neutralized == false && v.UnitIncapacitated == false && v.Abandoned == false;
+
+    private Vehicle FindNearestEnemy(Vehicle tracker)
     {
-        // Wait until the Planning phase ends
+        Faction enemyFaction = tracker.Allegiance == Faction.Red ? Faction.Blue : Faction.Red;
+        Vehicle nearest = null;
+        float nearestDist = float.MaxValue;
+        foreach (var v in GameObject.FindObjectsByType<Vehicle>(FindObjectsSortMode.None))
+        {
+            if (v.Allegiance != enemyFaction || !IsValidUnit(v)) continue;
+            float dist = Vector3.Distance(tracker.transform.position, v.transform.position);
+            if (dist < nearestDist) { nearestDist = dist; nearest = v; }
+        }
+        return nearest;
+    }
+
+    private IEnumerator MobileSpawnTrackNearestEnemy(Vehicle targetVehicle, float delay)
+    {
         while (MissionStateController.CurrentState == MissionState.Planning)
             yield return null;
 
-        // Wait the configured delay from end of planning
         float startTime = SceneController.MissionTime;
         while (SceneController.MissionTime - startTime < delay)
             yield return null;
 
         MelonLogger.Msg($"MobileSpawn: {targetVehicle.gameObject.name} activating after {delay}s delay.");
 
-        // Find the player's M1IP
-        Vehicle m1ipVehicle = null;
-        foreach (var v in GameObject.FindObjectsByType<Vehicle>(FindObjectsSortMode.None))
+        Vehicle target = FindNearestEnemy(targetVehicle);
+        if (target == null)
         {
-            if (v.gameObject.name.Contains("M1IP")) { m1ipVehicle = v; break; }
-        }
-
-        if (m1ipVehicle == null)
-        {
-            MelonLogger.Msg($"MobileSpawn: M1IP not found for {targetVehicle.gameObject.name}.");
+            MelonLogger.Msg($"MobileSpawn: No valid enemy found for {targetVehicle.gameObject.name}.");
             yield break;
         }
 
@@ -133,7 +145,7 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
         }
 
         GameObject waypointGo = new GameObject($"DynamicWaypoint_{targetVehicle.gameObject.name}");
-        waypointGo.transform.position = m1ipVehicle.transform.position;
+        waypointGo.transform.position = target.transform.position;
         TransformWaypoint waypoint = waypointGo.AddComponent<TransformWaypoint>();
 
         waypoint.MaxSpeed = -1f;
@@ -157,11 +169,13 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
             yield break;
         }
 
-        MelonLogger.Msg($"MobileSpawn: {targetVehicle.gameObject.name} now tracking M1IP.");
+        MelonLogger.Msg($"MobileSpawn: {targetVehicle.gameObject.name} now tracking nearest enemy.");
 
-        while (aiController != null && m1ipVehicle != null && waypoint != null)
+        while (aiController != null && waypoint != null)
         {
-            waypoint.Position = m1ipVehicle.transform.position;
+            target = FindNearestEnemy(targetVehicle);
+            if (target == null) break;
+            waypoint.Position = target.transform.position;
             yield return new WaitForSeconds(3f);
         }
 
@@ -178,26 +192,31 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
 
     private IEnumerator LogBlueVehiclePositions()
     {
-        MelonLogger.Msg("Logger started");
+        //MelonLogger.Msg("Logger started");
         while (true)
         {
             foreach (var v in GameObject.FindObjectsByType<Vehicle>(FindObjectsSortMode.None))
             {
-                if (v.Allegiance == Faction.Blue && ((v.Neutralized == false && v.UnitIncapacitated == false) && v.Abandoned == false)) 
-                MelonLogger.Msg($"[BluePos] {v.gameObject.name}: {v.transform.position}");
+                if (v.Allegiance == Faction.Blue && ((v.Neutralized == false && v.UnitIncapacitated == false) && v.Abandoned == false)){
+                
+                
+                //MelonLogger.Msg($"[BluePos] {v.gameObject.name}: {v.transform.position}");
+                }
             }
             yield return new WaitForSeconds(5f);
         }
     }
     private IEnumerator LogRedVehiclePositions()
     {
-        MelonLogger.Msg("Red Logger started");
+        //MelonLogger.Msg("Red Logger started");
         while (true)
         {
             foreach (var v in GameObject.FindObjectsByType<Vehicle>(FindObjectsSortMode.None))
             {
-                if (v.Allegiance == Faction.Red && ((v.Neutralized == false && v.UnitIncapacitated == false) && v.Abandoned == false)) 
-                MelonLogger.Msg($"[RedPos] {v.gameObject.name}: {v.transform.position}");
+                if (v.Allegiance == Faction.Red && ((v.Neutralized == false && v.UnitIncapacitated == false) && v.Abandoned == false))
+                {
+                //MelonLogger.Msg($"[RedPos] {v.gameObject.name}: {v.transform.position}");
+              }
             }
             yield return new WaitForSeconds(5f);
         }
@@ -247,11 +266,11 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
         }
 
         unit.Targetable = true;
-        LoggerInstance.Msg($"{entry.DisplayName} spawned successfully");
+        //LoggerInstance.Msg($"{entry.DisplayName} spawned successfully");
 
         if (entry.IsMobile) {
           if (unit is Vehicle vehicle)
-            MelonCoroutines.Start(MobileSpawnTrackM1IP(vehicle, entry.MobileDelay));
+            MelonCoroutines.Start(MobileSpawnTrackNearestEnemy(vehicle, entry.MobileDelay));
           else
             LoggerInstance.Error($"MobileSpawn: {entry.DisplayName} could not be cast to Vehicle.");
         }
