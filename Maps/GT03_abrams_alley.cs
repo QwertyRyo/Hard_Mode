@@ -24,6 +24,17 @@ namespace Hard_Mode
     {
         public static List<SpawnEntry> Spawns() => new List<SpawnEntry>
         {
+
+            //TEST REMOVE LATER T72M1 BREAKS MOD WITH PIL
+            /*      
+              new SpawnEntry
+            {
+                PrefabName = "T72M1",
+                Position = new Vector3(-820.0128f, 71.0977f, -500.6957f),
+                Rotation = Quaternion.Euler(0.3356f, 119.966f, 8.1891f),
+                Allegiance = Faction.Red,
+                DisplayName = "T-72M1 1 Modded"
+            },*/
             new SpawnEntry
             {
                 PrefabName = "T64B",
@@ -94,8 +105,6 @@ new SpawnEntry
                 Rotation = Quaternion.Euler(0f, 270f, 0f),
                 Allegiance = Faction.Red,
                 DisplayName = "T-80B 1 Modded",
-                //IsMobile = false,
-                MobileDelay = 20f
             }
             ,
             new SpawnEntry

@@ -99,37 +99,14 @@ namespace Hard_Mode
                 Allegiance = Faction.Red,
                 DisplayName = "T-72M1 4 Modded"
             },
-            new SpawnEntry
-            {
-                PrefabName = "T72M1",
-                Position = new Vector3(-2238.098f, 108.6313f, 160.2622f),
-                Rotation = Quaternion.Euler(2.6449f, 133.9807f, 4.1793f),
-                Allegiance = Faction.Red,
-                DisplayName = "T-72M1 5 Modded"
-            },
-            new SpawnEntry
-            {
-                PrefabName = "T72M1",
-                Position = new Vector3(-2254.222f, 123.2036f, 394.2121f),
-                Rotation = Quaternion.Euler(359.0435f, 115.5051f, 0.0771f),
-                Allegiance = Faction.Red,
-                DisplayName = "T-72M1 6 Modded"
-            },
-            new SpawnEntry
-            {
-                PrefabName = "STATIC_9K111",
-                Position = new Vector3(-150.9853f, 58.6319f, -153.2439f),
-                Rotation = Quaternion.Euler(1.4287f, 169.7619f, 359.3453f),
-                Allegiance = Faction.Red,
-                DisplayName = "STATIC_9K111"
-            },  
+            
             new SpawnEntry
             {
                 PrefabName = "STATIC_9K111",
                 Position = new Vector3(-812.4919f, 72.0769f, -514.4508f),
                 Rotation = Quaternion.Euler(358.3652f, 131.8527f, 357.6022f),
                 Allegiance = Faction.Red,
-                DisplayName = "STATIC_9K111"
+                DisplayName = "STATIC_9K111 1 modded"
             },
         };
     }

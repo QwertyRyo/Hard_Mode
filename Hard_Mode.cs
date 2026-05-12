@@ -35,22 +35,39 @@ using GHPC.Crew;
  * Mi24V_NVA, STATIC_SPG9_TRENCH, STATIC_SPG9_SA_TRENCH, STATIC_9K111_TRENCH,
  * STATIC_9K111_SA_TRENCH, STATIC_TOW_TRENCH, AH1_rockets, Mi24_rockets,
  * Mi24V_SA_rockets, Mi24V_NVA_rockets, RTS_CAMERA, MARDERA1, MARDERA1_NO_ATGM,
- * MARDERA1PLUS, MARDER1A2*/
+ * MARDERA1PLUS, MARDER1A2
+ 
+ At the moment do NOT make mobile IFVs their atgm code breaks fix later
+ 1. custom stop feature? try to see how ingame code works in dnspy alter
+ 
+ */
 namespace Hard_Mode {
 
 
   public class GMPC : MelonMod {
+    public static MelonPreferences_Entry<bool> CfgNoMobile;
+    public static MelonPreferences_Entry<bool> CfgDisableSensorPatch;
+
     private static readonly Dictionary<string, Func<List<SpawnEntry>>>
         _sceneSpawns = new Dictionary<string, Func<List<SpawnEntry>>>() {
           { "GT03_abrams_alley", GT03_abrams_alley.Spawns },
           { "GT03_patton_pass", GT03_patton_pass.Spawns },
           { "GT03_Longer_Road_V2", GT03_Longer_Road_V2.Spawns},
           { "GT03_gunnery_duel", GT03_gunnery_duel.Spawns},
+          { "GT03_Native_Narrative", GT03_Native_Narrative.Spawns},
 
         };
 
     public override void OnInitializeMelon() {
+      MelonPreferences_Category cfg = MelonPreferences.CreateCategory("HardMode");
+      CfgNoMobile = cfg.CreateEntry<bool>("DisableMobileSpawns", false, "Disable Mobile EnemySpawns");
+      CfgNoMobile.Comment = "Disables enemy spawns that will track down nearest allied vehicles. Applies on game restart";
+      CfgDisableSensorPatch = cfg.CreateEntry<bool>("DisableSensorPatch", false, "Disable AI having increased awareness");
+      CfgDisableSensorPatch.Comment = "Disables the sensor patch that increases AI awareness. Applies on game restart";
+
       HarmonyInstance.PatchAll();
+
+      
     }
 
 
@@ -66,6 +83,8 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
 
       _done = false;
       _pendingSpawns = getSpawns();
+      if (CfgNoMobile.Value)
+        _pendingSpawns = _pendingSpawns.Where(e => !e.IsMobile).ToList();
       StateController.RunOrDefer(GameState.GameReady,
                                  new GameStateEventHandler(OnGameReady),
                                  GameStatePriority.Medium);
@@ -79,6 +98,9 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
       [HarmonyTranspiler]
       static IEnumerable<CodeInstruction> Transpiler(
           IEnumerable<CodeInstruction> instructions) {
+        if (CfgDisableSensorPatch?.Value == true)
+          return instructions;
+
         var codes = new List<CodeInstruction>(instructions);
 
         for (int i = 0; i < codes.Count; i++) {
@@ -86,8 +108,9 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
               (float)codes[i].operand == 30f) {
             codes[i].operand = 180f;
           }
+          //180 degrees both ways = 360 degree coverage
 
-          // 250000f (500m squared) -> 1000000f (1000m squared)
+          //250000f (500m squared) -> 1000000f (1000m squared)
           if (codes[i].opcode == OpCodes.Ldc_R4 &&
               (float)codes[i].operand == 250000f) {
             codes[i].operand = 1000000f;
@@ -174,9 +197,12 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
         while (aiController != null && waypoint != null)
         {
             target = FindNearestEnemy(targetVehicle);
-            if (target == null) break;
+            if (target == null) {
+              MelonLogger.Msg($"MobileSpawn {targetVehicle.gameObject.name} cannot find nearest enemy during tracking.");
+              break;}
             waypoint.Position = target.transform.position;
-            yield return new WaitForSeconds(3f);
+            MelonLogger.Msg($"{targetVehicle.gameObject.name}  MobileSpawn: Updated waypoint position to nearest enemy at " + waypoint.Position);
+            yield return new WaitForSeconds(5f);
         }
 
         if (waypoint != null) GameObject.Destroy(waypoint.gameObject);
