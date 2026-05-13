@@ -7,6 +7,14 @@ Requires Melonloader 0.6.1 and [Vehicle Preloader](https://github.com/thebeninat
 
 To install, go to releases and download the latest copy.
 
+All maps are balanced around the default vehicles. Changing enemies in the customizer will not affect 
+
+
+Acknowledgements:
+Qwertyryo - Programming
+ATLAS - Programming assistance
+P_r_o_w_l_e_r - Testing and feedback
 Known Bugs:
 
 - Enemies not required to be killed to finish mission.
+- Is not compatible with PIL on certain maps.

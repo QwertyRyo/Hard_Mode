@@ -43,7 +43,7 @@ namespace Hard_Mode
                 Allegiance = Faction.Red,
                 DisplayName = "T-64B 1 Modded",
                 IsMobile = true,
-                MobileDelay = 150f
+                MobileDelay = 140f
             },
 
 new SpawnEntry
@@ -54,18 +54,18 @@ new SpawnEntry
                 Allegiance = Faction.Red,
                 DisplayName = "T-64B 2 Modded",
                 IsMobile = true,
-                MobileDelay = 150f
+                MobileDelay = 160f
             },
 
 new SpawnEntry
             {
-                PrefabName = "T64A81",
+                PrefabName = "T64B",
                 Position = new Vector3(2372.19f, 57.3358f, -723.3718f),
                 Rotation = Quaternion.Euler(2.5834f, 272.0554f, 1.2375f),
                 Allegiance = Faction.Red,
                 DisplayName = "T-64B 3 Modded",
                 IsMobile = true,
-                MobileDelay = 150f
+                MobileDelay = 170f
             },
 
 new SpawnEntry
@@ -86,7 +86,7 @@ new SpawnEntry
                 Allegiance = Faction.Red,
                 DisplayName = "T-64A81 2 Modded",
                 IsMobile = true,
-                MobileDelay = 75f
+                MobileDelay = 85f
             },
             new SpawnEntry
             {
@@ -96,7 +96,7 @@ new SpawnEntry
                 Allegiance = Faction.Red,
                 DisplayName = "T-64A81 3 Modded",
                 IsMobile = true,
-                MobileDelay = 75f
+                MobileDelay = 90f
             },
             new SpawnEntry
             {

@@ -55,6 +55,8 @@ namespace Hard_Mode {
           { "GT03_Longer_Road_V2", GT03_Longer_Road_V2.Spawns},
           { "GT03_gunnery_duel", GT03_gunnery_duel.Spawns},
           { "GT03_Native_Narrative", GT03_Native_Narrative.Spawns},
+          { "GT03_rolling_the_flank_UMC", GT03_rolling_the_flank_UMC.Spawns},
+                    { "GT03_Momentous_Maniac_UMC", GT03_Momentous_Maniac_UMC.Spawns}
 
         };
 
@@ -124,18 +126,29 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
     private bool _done = false;
     private List<SpawnEntry> _pendingSpawns;
 
-    
+    private static readonly List<Vehicle> _vehicleCache = new List<Vehicle>();
+    private static float _vehicleCacheTime = -1f;
+    private const float VehicleCacheInterval = 5f;
+
+    private static void RefreshVehicleCacheIfStale() {
+        if (Time.time - _vehicleCacheTime < VehicleCacheInterval) return;
+        _vehicleCacheTime = Time.time;
+        _vehicleCache.Clear();
+        _vehicleCache.AddRange(GameObject.FindObjectsByType<Vehicle>(FindObjectsSortMode.None));
+    }
+
     private static bool IsValidUnit(Vehicle v) =>
         v.Neutralized == false && v.UnitIncapacitated == false && v.Abandoned == false;
 
     private Vehicle FindNearestEnemy(Vehicle tracker)
     {
+        RefreshVehicleCacheIfStale();
         Faction enemyFaction = tracker.Allegiance == Faction.Red ? Faction.Blue : Faction.Red;
         Vehicle nearest = null;
         float nearestDist = float.MaxValue;
-        foreach (var v in GameObject.FindObjectsByType<Vehicle>(FindObjectsSortMode.None))
+        foreach (var v in _vehicleCache)
         {
-            if (v.Allegiance != enemyFaction || !IsValidUnit(v)) continue;
+            if (v == null || v.Allegiance != enemyFaction || !IsValidUnit(v)) continue;
             float dist = Vector3.Distance(tracker.transform.position, v.transform.position);
             if (dist < nearestDist) { nearestDist = dist; nearest = v; }
         }
@@ -201,7 +214,6 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
               MelonLogger.Msg($"MobileSpawn {targetVehicle.gameObject.name} cannot find nearest enemy during tracking.");
               break;}
             waypoint.Position = target.transform.position;
-            MelonLogger.Msg($"{targetVehicle.gameObject.name}  MobileSpawn: Updated waypoint position to nearest enemy at " + waypoint.Position);
             yield return new WaitForSeconds(5f);
         }
 
