@@ -7,7 +7,7 @@ Requires Melonloader 0.6.1 and [Vehicle Preloader](https://github.com/thebeninat
 
 To install, go to releases and download the latest copy.
 
-All maps are balanced around the default vehicles. Changing enemies in the customizer will not affect 
+All maps are balanced around the default vehicles. Changing enemies in the customizer will not affect enemies spawned by Hard Mode
 
 
 Acknowledgements:

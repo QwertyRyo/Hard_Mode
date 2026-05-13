@@ -1,0 +1,256 @@
+using GHPC;
+using GHPC.Mission.Data;
+using System.Collections.Generic;
+using UnityEngine;
+
+//1207.453 29.3617 388.6167 - 358.2837 174.4235 359.981
+//1214.816 28.4707 411.1635
+//1199.933 27.3523 443.1486
+
+namespace Hard_Mode
+{
+    public static class GT03_destroy_in_place
+    {
+        public static List<SpawnEntry> Spawns() => new List<SpawnEntry>
+        {
+            new SpawnEntry
+            {
+                PrefabName = "BTR70",
+                Position = new Vector3(2666f, 71.2479f, 1117.9f),
+                Rotation = Quaternion.Euler(3.1647f, 288.3247f, 352.284f),
+                Allegiance = Faction.Red,
+                DisplayName = "btr70 1m",
+                IsMobile = true,
+                MobileDelay = 1f
+            },
+                        new SpawnEntry
+            {
+                PrefabName = "BTR70",
+                Position = new Vector3(2691.645f, 70.577f, 1131.075f),
+                Rotation = Quaternion.Euler(359.8533f, 304.6045f, 355.6129f),
+                Allegiance = Faction.Red,
+                DisplayName = "btr70 2m",
+                IsMobile = true,
+                MobileDelay = 10f
+            },
+            new SpawnEntry
+            {
+                PrefabName = "T62",
+                Position = new Vector3(2699.82f, 69.7036f, 1135.242f),
+                Rotation = Quaternion.Euler(9.5795f, 342.0341f, 1.6915f),
+                Allegiance = Faction.Red,
+                DisplayName = "T62 1m",
+                IsMobile = true,
+                MobileDelay = 180f
+            },
+                                    new SpawnEntry
+            {
+                PrefabName = "T62",
+                Position = new Vector3(2839.892f, 66.3863f, 1143.411f),
+                Rotation = Quaternion.Euler(1.1601f, 107.2609f, 2.2808f),
+                Allegiance = Faction.Red,
+                DisplayName = "T62 2m",
+                IsMobile = true,
+                MobileDelay = 185f
+            },
+                        new SpawnEntry
+            {
+                PrefabName = "T62",
+                Position = new Vector3(2839.15f, 72.1414f, 1063.934f),
+                Rotation = Quaternion.Euler(349.5764f, 214.3755f, 0.6807f),
+                Allegiance = Faction.Red,
+                DisplayName = "T62 3m",
+                IsMobile = true,
+                MobileDelay = 190f
+            },
+                        new SpawnEntry
+            {
+                PrefabName = "T64A84",
+                Position = new Vector3(3220.926f, 113.9158f, 722.7145f),
+                Rotation = Quaternion.Euler(358.8533f, 259.6662f, 1.9657f),
+                Allegiance = Faction.Red,
+                DisplayName = "t64a84 1m",
+                IsMobile = true,
+                MobileDelay = 200f
+            },
+             new SpawnEntry
+            {
+                PrefabName = "T64A84",
+                Position = new Vector3(3234.415f, 113.8411f, 725.1399f),
+                Rotation = Quaternion.Euler(358.8533f, 259.6662f, 1.9657f),
+                Allegiance = Faction.Red,
+                DisplayName = "t64a84 2m",
+                IsMobile = true,
+                MobileDelay = 210f
+            },
+                                    new SpawnEntry
+            {
+                PrefabName = "T64A84",
+                Position = new Vector3(3254.932f, 114.0961f, 723.098f),
+                Rotation = Quaternion.Euler(1.1744f, 274.9138f, 0.4571f),
+                Allegiance = Faction.Red,
+                DisplayName = "t64a84 3m",
+                IsMobile = true,
+                MobileDelay = 220f
+            },
+                                    new SpawnEntry
+            {
+                PrefabName = "T64B",
+                Position = new Vector3(3543.901f, 113.3096f, 715.7787f),
+                Rotation = Quaternion.Euler(0.7771f, 266.5621f, 354.2704f),
+                Allegiance = Faction.Red,
+                DisplayName = "T64B 1m",
+                IsMobile = true,
+                MobileDelay = 230f
+            },
+            new SpawnEntry
+            {
+                PrefabName = "T64B",
+                Position = new Vector3(3575.184f, 112.5574f, 669.2434f),
+                Rotation = Quaternion.Euler(1.1589f, 268.6723f, 4.0097f),
+                Allegiance = Faction.Red,
+                DisplayName = "T64B 3m",
+                IsMobile = true,
+                MobileDelay = 245f
+            },
+                                    new SpawnEntry
+            {
+                PrefabName = "T64B",
+                Position = new Vector3(3556.88f, 114.1215f, 693.864f),
+                Rotation = Quaternion.Euler(359.6894f, 287.9251f, 0.8133f),
+                Allegiance = Faction.Red,
+                DisplayName = "T64B 2m",
+                IsMobile = true,
+                MobileDelay = 238f
+            },
+
+            new SpawnEntry
+            {
+                PrefabName = "T80B",
+                Position = new Vector3(3305.005f, 51.3295f, 111.6433f),
+                Rotation = Quaternion.Euler(0.0428f, 231.922f, 359.8488f),
+                Allegiance = Faction.Red,
+                DisplayName = "T80B 1m",
+                IsMobile = true,
+                MobileDelay = 260f
+            },
+            new SpawnEntry
+            {
+                PrefabName = "T80B",
+                Position = new Vector3(3271.612f, 51.6448f, 143.7928f),
+                Rotation = Quaternion.Euler(0.1405f, 229.1754f, 359.7498f),
+                Allegiance = Faction.Red,
+                DisplayName = "T80B 2m",
+                IsMobile = true,
+                MobileDelay = 270f
+            },
+            new SpawnEntry
+            {
+                PrefabName = "T80B",
+                Position = new Vector3(3237.708f, 51.5627f, 83.0195f),
+                Rotation = Quaternion.Euler(356.3213f, 234.434f, 0.9111f),
+                Allegiance = Faction.Red,
+                DisplayName = "T80B 3m",
+                IsMobile = true,
+                MobileDelay = 250f
+            },
+                        new SpawnEntry
+            {
+                PrefabName = "T80B",
+                Position = new Vector3(3738.878f, 91.3883f, -479.4391f),
+                Rotation = Quaternion.Euler(353.5858f, 239.449f, 353.1872f),
+                Allegiance = Faction.Red,
+                DisplayName = "T80B 4m",
+                IsMobile = true,
+                MobileDelay = 300f
+            },
+             new SpawnEntry
+            {
+                PrefabName = "T80B",
+                Position = new Vector3(3746.482f, 95.6623f, -502.9803f),
+                Rotation = Quaternion.Euler(353.7981f, 246.4394f, 351.8145f),
+                Allegiance = Faction.Red,
+                DisplayName = "T80B 5m",
+                IsMobile = true,
+                MobileDelay = 300f
+            },
+             new SpawnEntry
+            {
+                PrefabName = "T80B",
+                Position = new Vector3(3750.629f, 100.8602f, -535.4517f),
+                Rotation = Quaternion.Euler(355.03f, 241.8437f, 352.9021f),
+                Allegiance = Faction.Red,
+                DisplayName = "T80B 6m",
+                IsMobile = true,
+                MobileDelay = 300f
+            },
+
+                                    new SpawnEntry
+            {
+                PrefabName = "BMP1P_SA",
+                Position = new Vector3(3899.098f, 123.927f, -813.7736f),
+                Rotation = Quaternion.Euler(355.0672f, 268.5102f, 349.976f),
+                Allegiance = Faction.Red,
+                DisplayName = "bmp1p 1m",
+                IsMobile = true,
+                MobileDelay = 300f
+            },
+             new SpawnEntry
+            {
+                PrefabName = "BMP1P_SA",
+                Position = new Vector3(3935.756f, 128.1035f, -843.4011f),
+                Rotation = Quaternion.Euler(356.0333f, 236.2242f, 353.5807f),
+                Allegiance = Faction.Red,
+                DisplayName = "bmp1p 2m",
+                IsMobile = true,
+                MobileDelay = 310f
+            },
+             new SpawnEntry
+            {
+                PrefabName = "BMP1P_SA",
+                Position = new Vector3(3950.636f, 132.2602f, -890.8618f),
+                Rotation = Quaternion.Euler(354.2697f, 246.3533f, 359.7101f),
+                Allegiance = Faction.Red,
+                DisplayName = "bmp1p 3m",
+                IsMobile = true,
+                MobileDelay = 315f
+            },
+
+
+
+
+            
+                                                new SpawnEntry
+            {
+                PrefabName = "BMP2_SA",
+                Position = new Vector3(3607.258f, 125.394f, -1701.855f),
+                Rotation = Quaternion.Euler(359.3971f, 258.9643f, 359.6464f),
+                Allegiance = Faction.Red,
+                DisplayName = "BMP2_SA 1m",
+                IsMobile = true,
+                MobileDelay = 280f
+            },
+             new SpawnEntry
+            {
+                PrefabName = "BMP2_SA",
+                Position = new Vector3(3628.193f, 125.1241f, -1694.806f),
+                Rotation = Quaternion.Euler(358.8438f, 254.2728f, 359.8016f),
+                Allegiance = Faction.Red,
+                DisplayName = "BMP2_SA 2m",
+                IsMobile = true,
+                MobileDelay = 290f
+            },
+             new SpawnEntry
+            {
+                PrefabName = "BMP2_SA",
+                Position = new Vector3(3663.762f, 125.0872f, -1679.012f),
+                Rotation = Quaternion.Euler(0.5848f, 245.5221f, 359.8007f),
+                Allegiance = Faction.Red,
+                DisplayName = "BMP2_SA 3m",
+                IsMobile = true,
+                MobileDelay = 300f
+            },
+
+        };
+    }
+}

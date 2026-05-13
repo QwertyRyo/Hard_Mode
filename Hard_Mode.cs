@@ -56,7 +56,10 @@ namespace Hard_Mode {
           { "GT03_gunnery_duel", GT03_gunnery_duel.Spawns},
           { "GT03_Native_Narrative", GT03_Native_Narrative.Spawns},
           { "GT03_rolling_the_flank_UMC", GT03_rolling_the_flank_UMC.Spawns},
-                    { "GT03_Momentous_Maniac_UMC", GT03_Momentous_Maniac_UMC.Spawns}
+                    { "GT03_Momentous_Maniac_UMC", GT03_Momentous_Maniac_UMC.Spawns},
+          { "GT03_destroy_in_place", GT03_destroy_in_place.Spawns},
+
+
 
         };
 
@@ -210,11 +213,12 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
         while (aiController != null && waypoint != null)
         {
             target = FindNearestEnemy(targetVehicle);
+            MelonLogger.Msg($" MobileSpawn {targetVehicle.gameObject.name} is finding nearest enemy.");
             if (target == null) {
               MelonLogger.Msg($"MobileSpawn {targetVehicle.gameObject.name} cannot find nearest enemy during tracking.");
               break;}
             waypoint.Position = target.transform.position;
-            yield return new WaitForSeconds(5f);
+            yield return new WaitForSeconds(6f);
         }
 
         if (waypoint != null) GameObject.Destroy(waypoint.gameObject);

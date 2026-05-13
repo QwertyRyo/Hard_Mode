@@ -43,7 +43,7 @@ namespace Hard_Mode
                 Allegiance = Faction.Red,
                 DisplayName = "T-64B 1 Modded",
                 IsMobile = true,
-                MobileDelay = 140f
+                MobileDelay = 180f
             },
 
 new SpawnEntry
@@ -54,7 +54,7 @@ new SpawnEntry
                 Allegiance = Faction.Red,
                 DisplayName = "T-64B 2 Modded",
                 IsMobile = true,
-                MobileDelay = 160f
+                MobileDelay = 185f
             },
 
 new SpawnEntry
@@ -65,7 +65,7 @@ new SpawnEntry
                 Allegiance = Faction.Red,
                 DisplayName = "T-64B 3 Modded",
                 IsMobile = true,
-                MobileDelay = 170f
+                MobileDelay = 190f
             },
 
 new SpawnEntry
