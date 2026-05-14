@@ -210,7 +210,7 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
 
         MelonLogger.Msg($"MobileSpawn: {targetVehicle.gameObject.name} now tracking nearest enemy.");
 
-        while (aiController != null && waypoint != null)
+        while (aiController != null && waypoint != null && targetVehicle != null && IsValidUnit(targetVehicle))
         {
             target = FindNearestEnemy(targetVehicle);
             MelonLogger.Msg($" MobileSpawn {targetVehicle.gameObject.name} is finding nearest enemy.");
