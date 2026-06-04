@@ -68,7 +68,8 @@ namespace Hard_Mode {
                     {"GT03_Valley_of_Infantry_UMC", GT03_Valley_of_Infantry_UMC.Spawns},
                     {"GT03_Marketable_Mayham", GT03_Marketable_Mayham.Spawns},
                     {"GT03_late_to_the_party_UMC", GT03_late_to_the_party_UMC.Spawns},
-                    {"GT03_Red_Steel", GT03_Red_Steel.Spawns}
+                    {"GT03_Red_Steel", GT03_Red_Steel.Spawns},
+                    {"GT03_PushingTin_FlankSecurity_UMC", GT03_PushingTin_FlankSecurity_UMC.Spawns}
 
 
         };
