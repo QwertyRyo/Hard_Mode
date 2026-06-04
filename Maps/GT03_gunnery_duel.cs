@@ -3,34 +3,6 @@ using GHPC.Mission.Data;
 using System.Collections.Generic;
 using UnityEngine;
 
-/*
-1721.25 33.6002 2242.378 - 359.5952 280.4414 0.0071
-1725.383 33.5842 2257.542 - 1.2717 257.7598 0.207
-1716.327 33.1871 2231.333 - 4.9545 249.6961 359.4212
-M60A1RISEP77 /*
-
-1826.964 56.7487 664.0788 -  4.4814 319.6179 0.7306
-1851.589 57.494 673.0618 - 4.4814 319.6179 0.7306
-M60A3
-
-
-
-1421.623 28.3211 1287.737 - 353.3597 325.8318 357.1405
-1459.077 21.2225 1355.646 - 0.8883 325.425 352.9652
-2101.508 39.2387 1928.109 - 358.6686 259.8372 357.6032
-STATIC_TOW 
-
-2091.569 34.8865 1808.214 - 4.5822 270.1992 3.235
-2081.488 36.7519 1835.452 - 4.5822 270.1992 3.235
-- M1
-
-2949.086 69.8291 2100.22 - 10.1306 240.5066 5.6681
-2939.472 80.9195 2184.822 - 3.9684 220.4742 359.0484
-3016.61 87.1789 2238.984 - 4.9799 231.3912 0.1256
-3058.937 81.8871 2209.399 - 5.2434 206.1564 7.5278
-M2Bradley
-
- */
 
 
 
@@ -40,7 +12,6 @@ namespace Hard_Mode
     {
         public static List<SpawnEntry> Spawns() => new List<SpawnEntry>
         {
-            // M60A1RISEP77
             new SpawnEntry
             {
                 PrefabName = "M60A1RISEP77",
@@ -59,11 +30,11 @@ namespace Hard_Mode
                 Allegiance = Faction.Blue,
                 DisplayName = "M60A1RISEP77 modded 2",
                 IsMobile = true,
-                MobileDelay = 60f
+                MobileDelay = 70f
             },
             new SpawnEntry
             {
-                PrefabName = "M2Bradley",
+                PrefabName = "M2BRADLEY",
                 Position = new Vector3(1826.964f, 56.7487f, 664.0788f),
                 Rotation = Quaternion.Euler(4.4814f, 319.6179f, 0.7306f),
                 Allegiance = Faction.Blue,
@@ -71,12 +42,15 @@ namespace Hard_Mode
             },
             new SpawnEntry
             {
-                PrefabName = "M2Bradley",
+                PrefabName = "M2BRADLEY",
                 Position = new Vector3(1851.589f, 57.494f, 673.0618f),
                 Rotation = Quaternion.Euler(4.4814f, 319.6179f, 0.7306f),
                 Allegiance = Faction.Blue,
                 DisplayName = "M2 Bradley modded 2"
             },
+
+
+
             // STATIC_TOW
             new SpawnEntry
             {
@@ -102,6 +76,9 @@ namespace Hard_Mode
                 Allegiance = Faction.Blue,
                 DisplayName = "STATIC_TOW 3 modded"
             },
+
+           
+
             // M1
             new SpawnEntry
             {
@@ -119,7 +96,10 @@ namespace Hard_Mode
                 Allegiance = Faction.Blue,
                 DisplayName = "M1 2 modded"
             },
-            // M2BRADLEY (mobile)
+            
+
+
+            // m60a3 (mobile)
             new SpawnEntry
             {
                 PrefabName = "M60A3",

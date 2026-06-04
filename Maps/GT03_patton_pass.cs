@@ -3,9 +3,6 @@ using GHPC.Mission.Data;
 using System.Collections.Generic;
 using UnityEngine;
 
-//1207.453 29.3617 388.6167 - 358.2837 174.4235 359.981
-//1214.816 28.4707 411.1635
-//1199.933 27.3523 443.1486
 
 namespace Hard_Mode
 {

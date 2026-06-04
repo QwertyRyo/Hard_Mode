@@ -54,11 +54,21 @@ namespace Hard_Mode {
           { "GT03_patton_pass", GT03_patton_pass.Spawns },
           { "GT03_Longer_Road_V2", GT03_Longer_Road_V2.Spawns},
           { "GT03_gunnery_duel", GT03_gunnery_duel.Spawns},
+                    { "GT03_cheap_tricks", GT03_cheap_tricks.Spawns},
+
           { "GT03_Native_Narrative", GT03_Native_Narrative.Spawns},
           { "GT03_rolling_the_flank_UMC", GT03_rolling_the_flank_UMC.Spawns},
                     { "GT03_Momentous_Maniac_UMC", GT03_Momentous_Maniac_UMC.Spawns},
           { "GT03_destroy_in_place", GT03_destroy_in_place.Spawns},
-
+          {"GT03_bounding_overwatch_UMC", GT03_bounding_overwatch_UMC.Spawns},
+          {"GT03_prying_eyes", GT03_prying_eyes.Spawns}
+,
+          {"GT03_ruined_regiment", GT03_ruined_regiment.Spawns},
+          {"GT03_Meditative_Malediction", GT03_Meditative_Malediction.Spawns},
+                    {"GT03_Valley_of_Infantry_UMC", GT03_Valley_of_Infantry_UMC.Spawns},
+                    {"GT03_Marketable_Mayham", GT03_Marketable_Mayham.Spawns},
+                    {"GT03_late_to_the_party_UMC", GT03_late_to_the_party_UMC.Spawns},
+                    {"GT03_Red_Steel", GT03_Red_Steel.Spawns}
 
 
         };
@@ -79,9 +89,7 @@ namespace Hard_Mode {
 public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
       LoggerInstance.Msg($"Loaded scene {sceneName}, trying to patch game...");
 
-      StateController.RunOrDefer(GameState.GameReady,
-                                 new GameStateEventHandler(StartBlueLogger),
-                                 GameStatePriority.Medium);
+      //StateController.RunOrDefer(GameState.GameReady, new GameStateEventHandler(StartBlueLogger), GameStatePriority.Medium);
 
       if (!_sceneSpawns.TryGetValue(sceneName, out var getSpawns))
         return;
@@ -131,7 +139,7 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
 
     private static readonly List<Vehicle> _vehicleCache = new List<Vehicle>();
     private static float _vehicleCacheTime = -1f;
-    private const float VehicleCacheInterval = 5f;
+    private const float VehicleCacheInterval = 8f;
 
     private static void RefreshVehicleCacheIfStale() {
         if (Time.time - _vehicleCacheTime < VehicleCacheInterval) return;
@@ -156,6 +164,11 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
             if (dist < nearestDist) { nearestDist = dist; nearest = v; }
         }
         return nearest;
+    }
+
+    private static Vector3 RandomPerimeter(Vector3 center) {
+        Vector2 ring = UnityEngine.Random.insideUnitCircle.normalized * 5f;
+        return center + new Vector3(ring.x, 0f, ring.y);
     }
 
     private IEnumerator MobileSpawnTrackNearestEnemy(Vehicle targetVehicle, float delay)
@@ -184,7 +197,7 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
         }
 
         GameObject waypointGo = new GameObject($"DynamicWaypoint_{targetVehicle.gameObject.name}");
-        waypointGo.transform.position = target.transform.position;
+        waypointGo.transform.position = RandomPerimeter(target.transform.position);
         TransformWaypoint waypoint = waypointGo.AddComponent<TransformWaypoint>();
 
         waypoint.MaxSpeed = -1f;
@@ -199,7 +212,7 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
             yield break;
         }
 
-        aiController.TargetSpeed = 50f;
+        aiController.TargetSpeed = 45f;
 
         try { aiController.StartDriveToWaypoint(waypoint); }
         catch (Exception ex)
@@ -213,11 +226,11 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
         while (aiController != null && waypoint != null && targetVehicle != null && IsValidUnit(targetVehicle))
         {
             target = FindNearestEnemy(targetVehicle);
-            MelonLogger.Msg($" MobileSpawn {targetVehicle.gameObject.name} is finding nearest enemy.");
+            //MelonLogger.Msg($" MobileSpawn {targetVehicle.gameObject.name} is finding nearest enemy.");
             if (target == null) {
-              MelonLogger.Msg($"MobileSpawn {targetVehicle.gameObject.name} cannot find nearest enemy during tracking.");
+              //MelonLogger.Msg($"MobileSpawn {targetVehicle.gameObject.name} cannot find nearest enemy during tracking.");
               break;}
-            waypoint.Position = target.transform.position;
+            waypoint.Position = RandomPerimeter(target.transform.position);
             yield return new WaitForSeconds(6f);
         }
 
@@ -245,7 +258,7 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
                 //MelonLogger.Msg($"[BluePos] {v.gameObject.name}: {v.transform.position}");
                 }
             }
-            yield return new WaitForSeconds(5f);
+            yield return new WaitForSeconds(10f);
         }
     }
     private IEnumerator LogRedVehiclePositions()
