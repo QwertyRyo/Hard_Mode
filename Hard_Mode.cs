@@ -177,8 +177,14 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
         return center + new Vector3(ring.x, 0f, ring.y);
     }
 
+    private static int _coroutineCounter = 0;
+
     private IEnumerator MobileSpawnTrackNearestEnemy(Vehicle targetVehicle, float delay)
     {
+        int coroutineId = ++_coroutineCounter;
+        float spawnTime = Time.time;
+        MelonLogger.Msg($"[{coroutineId}] Coroutine started at Time.time={spawnTime:F1} for {targetVehicle.gameObject.name} delay={delay}");
+
         while (MissionStateController.CurrentState == MissionState.Planning)
             yield return null;
 
@@ -186,19 +192,19 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
         while (SceneController.MissionTime - startTime < delay)
             yield return null;
 
-        MelonLogger.Msg($"MobileSpawn: {targetVehicle.gameObject.name} activating after {delay}s delay.");
+        MelonLogger.Msg($"[{coroutineId}] Delay done at Time.time={Time.time:F1} (started at {spawnTime:F1}). Pos={targetVehicle.transform.position}");
 
         Vehicle target = FindNearestEnemy(targetVehicle);
         if (target == null)
         {
-            MelonLogger.Msg($"MobileSpawn: No valid enemy found for {targetVehicle.gameObject.name}.");
+            MelonLogger.Msg($"[{coroutineId}] No valid enemy found for {targetVehicle.gameObject.name}.");
             yield break;
         }
 
         DriverAIController aiController = targetVehicle.GetComponent<DriverAIController>();
         if (aiController == null)
         {
-            MelonLogger.Msg($"MobileSpawn: No DriverAIController on {targetVehicle.gameObject.name}.");
+            MelonLogger.Msg($"[{coroutineId}] No DriverAIController on {targetVehicle.gameObject.name}.");
             yield break;
         }
 
@@ -211,23 +217,31 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
         waypoint.AvoidObstacles = true;
         waypoint.FollowMode = WaypointHolder.FollowModes.Automatic;
 
+        MelonLogger.Msg($"[{coroutineId}] Pre-SetupDriverController pos={targetVehicle.transform.position}");
         try { aiController.SetupDriverController(); }
         catch (Exception ex)
         {
-            MelonLogger.Error($"MobileSpawn SetupDriverController threw: {ex}");
+            MelonLogger.Error($"[{coroutineId}] SetupDriverController threw: {ex}");
             yield break;
         }
+        MelonLogger.Msg($"[{coroutineId}] Post-SetupDriverController pos={targetVehicle.transform.position}");
 
         aiController.TargetSpeed = 45f;
 
+        MelonLogger.Msg($"[{coroutineId}] Pre-StartDriveToWaypoint waypoint pos={waypointGo.transform.position}");
+        var nn = AstarPath.active?.GetNearest(targetVehicle.transform.position);
+        MelonLogger.Msg($"[{coroutineId}] Nearest navmesh node to vehicle: {nn?.position} dist={nn?.distance}");
+        var nn2 = AstarPath.active?.GetNearest(waypointGo.transform.position);
+        MelonLogger.Msg($"[{coroutineId}] Nearest navmesh node to waypoint: {nn2?.position} dist={nn2?.distance}");
         try { aiController.StartDriveToWaypoint(waypoint); }
         catch (Exception ex)
         {
-            MelonLogger.Error($"MobileSpawn StartDriveToWaypoint threw: {ex}");
+            MelonLogger.Error($"[{coroutineId}] StartDriveToWaypoint threw: {ex}");
             yield break;
         }
+        MelonLogger.Msg($"[{coroutineId}] Post-StartDriveToWaypoint pos={targetVehicle.transform.position}");
 
-        MelonLogger.Msg($"MobileSpawn: {targetVehicle.gameObject.name} now tracking nearest enemy.");
+        MelonLogger.Msg($"[{coroutineId}] {targetVehicle.gameObject.name} now tracking nearest enemy.");
 
         while (aiController != null && waypoint != null && targetVehicle != null && IsValidUnit(targetVehicle))
         {
