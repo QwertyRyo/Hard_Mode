@@ -100,7 +100,7 @@ namespace Hard_Mode {
 
         Rotation = Quaternion.Euler(357.9423f, 358.0872f, 4.6098f),
         Allegiance = Faction.Blue,
-        DisplayName = "m60a3 2m",
+        DisplayName = "m60a3 3m",
         IsMobile = true,
         MobileDelay = 30f
     },
@@ -110,7 +110,7 @@ namespace Hard_Mode {
 
         Rotation = Quaternion.Euler(354.5903f, 12.1088f, 359.4704f),
         Allegiance = Faction.Blue,
-        DisplayName = "m60a3 2m",
+        DisplayName = "m60a3 4m",
         IsMobile = true,
         MobileDelay = 35f
     },

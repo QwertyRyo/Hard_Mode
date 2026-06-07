@@ -20,6 +20,7 @@ using GHPC.AI.Platoons;
 using UnityEngine.Events;
 using Pathfinding;
 using GHPC.Crew;
+using System.Linq.Expressions;
 
 [assembly:MelonInfo(typeof(GMPC), "Hard Mode", "1.0.0", "Qwertyryo")]
 [assembly:MelonGame("Radian Simulations LLC", "GHPC")]
@@ -69,8 +70,11 @@ namespace Hard_Mode {
                     {"GT03_Marketable_Mayham", GT03_Marketable_Mayham.Spawns},
                     {"GT03_late_to_the_party_UMC", GT03_late_to_the_party_UMC.Spawns},
                     {"GT03_Red_Steel", GT03_Red_Steel.Spawns},
-                    {"GT03_PushingTin_FlankSecurity_UMC", GT03_PushingTin_FlankSecurity_UMC.Spawns}
-
+                    {"GT03_PushingTin_FlankSecurity_UMC", GT03_PushingTin_FlankSecurity_UMC.Spawns},
+        {"GT03_PushingTin_MainEffort_UMC", GT03_PushingTin_MainEffort_UMC.Spawns},
+        {"GT03_Obscene_Odyssey_UMC", GT03_Obscene_Odyssey_UMC.Spawns},
+        {"GT03_Savage_Scream_UMC", GT03_Savage_Scream_UMC.Spawns},
+        {"GT03_Eastern_Scramble", GT03_Eastern_Scramble.Spawns}
 
         };
 
@@ -88,7 +92,7 @@ namespace Hard_Mode {
 
 
 public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
-      LoggerInstance.Msg($"Loaded scene {sceneName}, trying to patch game...");
+      //LoggerInstance.Msg($"Loaded scene {sceneName}, trying to patch game...");
 
       //StateController.RunOrDefer(GameState.GameReady, new GameStateEventHandler(StartBlueLogger), GameStatePriority.Medium);
 
@@ -158,6 +162,7 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
         Faction enemyFaction = tracker.Allegiance == Faction.Red ? Faction.Blue : Faction.Red;
         Vehicle nearest = null;
         float nearestDist = float.MaxValue;
+        MelonLogger.Msg($"findnearestenemy running, {tracker.transform.position}");
         foreach (var v in _vehicleCache)
         {
             if (v == null || v.Allegiance != enemyFaction || !IsValidUnit(v)) continue;
@@ -226,14 +231,23 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
 
         while (aiController != null && waypoint != null && targetVehicle != null && IsValidUnit(targetVehicle))
         {
+          bool loopcond3 = targetVehicle != null;
+          MelonLogger.Msg($"{loopcond3}");
             target = FindNearestEnemy(targetVehicle);
             //MelonLogger.Msg($" MobileSpawn {targetVehicle.gameObject.name} is finding nearest enemy.");
             if (target == null) {
-              //MelonLogger.Msg($"MobileSpawn {targetVehicle.gameObject.name} cannot find nearest enemy during tracking.");
+              MelonLogger.Msg($"MobileSpawn {targetVehicle.gameObject.name} cannot find nearest enemy during tracking.");
+
               break;}
             waypoint.Position = RandomPerimeter(target.transform.position);
+
+
+
             yield return new WaitForSeconds(6f);
+       
         }
+        MelonLogger.Msg($"230 loop ended");
+
 
         if (waypoint != null) GameObject.Destroy(waypoint.gameObject);
     }
@@ -253,7 +267,7 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
         {
             foreach (var v in GameObject.FindObjectsByType<Vehicle>(FindObjectsSortMode.None))
             {
-                if (v.Allegiance == Faction.Blue && ((v.Neutralized == false && v.UnitIncapacitated == false) && v.Abandoned == false)){
+                if (v.Allegiance == Faction.Blue && v.Neutralized == false && v.UnitIncapacitated == false && v.Abandoned == false){
                 
                 
                 //MelonLogger.Msg($"[BluePos] {v.gameObject.name}: {v.transform.position}");
@@ -329,6 +343,10 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
             MelonCoroutines.Start(MobileSpawnTrackNearestEnemy(vehicle, entry.MobileDelay));
           else
             LoggerInstance.Error($"MobileSpawn: {entry.DisplayName} could not be cast to Vehicle.");
+        }
+        else
+        {
+          LoggerInstance.Error($"entry.IsMobile returned false");
         }
       }
 
