@@ -21,6 +21,8 @@ using UnityEngine.Events;
 using Pathfinding;
 using GHPC.Crew;
 using System.Linq.Expressions;
+using GHPC.Equipment;
+using GHPC.Equipment.Lamps;
 
 [assembly:MelonInfo(typeof(GMPC), "Hard Mode", "1.0.0", "Qwertyryo")]
 [assembly:MelonGame("Radian Simulations LLC", "GHPC")]
@@ -74,14 +76,13 @@ namespace Hard_Mode {
         {"GT03_PushingTin_MainEffort_UMC", GT03_PushingTin_MainEffort_UMC.Spawns},
         {"GT03_Obscene_Odyssey_UMC", GT03_Obscene_Odyssey_UMC.Spawns},
         {"GT03_Savage_Scream_UMC", GT03_Savage_Scream_UMC.Spawns},
-        {"GT03_Eastern_Scramble", GT03_Eastern_Scramble.Spawns}
-
+        {"GT03_Eastern_Scramble", GT03_Eastern_Scramble.Spawns},
+{"GT03_Support_Strike", GT03_Support_Strike.Spawns},
+        {"GT03_CrossScreen", GT03_CrossScreen.Spawns}
         };
 
     public override void OnInitializeMelon() {
       MelonPreferences_Category cfg = MelonPreferences.CreateCategory("HardMode");
-      CfgNoMobile = cfg.CreateEntry<bool>("DisableMobileSpawns", false, "Disable Mobile EnemySpawns");
-      CfgNoMobile.Comment = "Disables enemy spawns that will track down nearest allied vehicles. Applies on game restart";
       CfgDisableSensorPatch = cfg.CreateEntry<bool>("DisableSensorPatch", false, "Disable AI having increased awareness");
       CfgDisableSensorPatch.Comment = "Disables the sensor patch that increases AI awareness. Applies on game restart";
 
@@ -101,12 +102,23 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
 
       _done = false;
       _pendingSpawns = getSpawns();
-      if (CfgNoMobile.Value)
-        _pendingSpawns = _pendingSpawns.Where(e => !e.IsMobile).ToList();
       StateController.RunOrDefer(GameState.GameReady,
                                  new GameStateEventHandler(OnGameReady),
                                  GameStatePriority.Medium);
     }
+
+
+//stops 
+    [HarmonyPatch(typeof(DriverBrain), nameof(DriverBrain.ForceSpeed))]
+    public static class ForceSpeedPatch {
+      [HarmonyPrefix]
+      static void Prefix(DriverBrain __instance, ref float newSpeed, bool brake) {
+        if (newSpeed == 1f) newSpeed = 0.5f;
+        
+      }
+    }
+
+
 
     [HarmonyPatch(typeof(TankTargetSensor),
                   nameof(TankTargetSensor.IsTargetVisible))]
@@ -162,7 +174,7 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
         Faction enemyFaction = tracker.Allegiance == Faction.Red ? Faction.Blue : Faction.Red;
         Vehicle nearest = null;
         float nearestDist = float.MaxValue;
-        MelonLogger.Msg($"findnearestenemy running, {tracker.transform.position}");
+        //MelonLogger.Msg($"findnearestenemy running, {tracker.transform.position}");
         foreach (var v in _vehicleCache)
         {
             if (v == null || v.Allegiance != enemyFaction || !IsValidUnit(v)) continue;
@@ -192,7 +204,6 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
         while (SceneController.MissionTime - startTime < delay)
             yield return null;
 
-        MelonLogger.Msg($"[{coroutineId}] Delay done at Time.time={Time.time:F1} (started at {spawnTime:F1}). Pos={targetVehicle.transform.position}");
 
         Vehicle target = FindNearestEnemy(targetVehicle);
         if (target == null)
@@ -230,23 +241,19 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
 
         MelonLogger.Msg($"[{coroutineId}] Pre-StartDriveToWaypoint waypoint pos={waypointGo.transform.position}");
         var nn = AstarPath.active?.GetNearest(targetVehicle.transform.position);
-        MelonLogger.Msg($"[{coroutineId}] Nearest navmesh node to vehicle: {nn?.position} dist={nn?.distance}");
         var nn2 = AstarPath.active?.GetNearest(waypointGo.transform.position);
-        MelonLogger.Msg($"[{coroutineId}] Nearest navmesh node to waypoint: {nn2?.position} dist={nn2?.distance}");
         try { aiController.StartDriveToWaypoint(waypoint); }
         catch (Exception ex)
         {
             MelonLogger.Error($"[{coroutineId}] StartDriveToWaypoint threw: {ex}");
             yield break;
         }
-        MelonLogger.Msg($"[{coroutineId}] Post-StartDriveToWaypoint pos={targetVehicle.transform.position}");
+        //MelonLogger.Msg($"[{coroutineId}] Post-StartDriveToWaypoint pos={targetVehicle.transform.position}");
 
-        MelonLogger.Msg($"[{coroutineId}] {targetVehicle.gameObject.name} now tracking nearest enemy.");
-
+        //MelonLogger.Msg($"[{coroutineId}] {targetVehicle.gameObject.name} now tracking nearest enemy.");
+        float slowSince = -1f;
         while (aiController != null && waypoint != null && targetVehicle != null && IsValidUnit(targetVehicle))
         {
-          bool loopcond3 = targetVehicle != null;
-          MelonLogger.Msg($"{loopcond3}");
             target = FindNearestEnemy(targetVehicle);
             //MelonLogger.Msg($" MobileSpawn {targetVehicle.gameObject.name} is finding nearest enemy.");
             if (target == null) {
@@ -255,12 +262,25 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
               break;}
             waypoint.Position = RandomPerimeter(target.transform.position);
 
-
-
-            yield return new WaitForSeconds(6f);
+            //fix for non-konkurs IFVs slowing down for some reason
+            if (aiController.TargetSpeed > 0f && aiController.TargetSpeed <= 4f)
+            {
+                if (slowSince < 0f) slowSince = Time.time;
+                if (Time.time - slowSince >= 12f)
+                {
+                    aiController.TargetSpeed = 45f;
+                    MelonLogger.Msg("Speed restored");
+                    slowSince = -1f;
+                }
+                yield return new WaitForSeconds(1f);
+            }
+            else
+            {
+                slowSince = -1f;
+                yield return new WaitForSeconds(6f);
+            }
        
         }
-        MelonLogger.Msg($"230 loop ended");
 
 
         if (waypoint != null) GameObject.Destroy(waypoint.gameObject);

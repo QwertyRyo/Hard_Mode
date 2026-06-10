@@ -250,21 +250,21 @@ namespace Hard_Mode
 
                         new SpawnEntry
             {
-                PrefabName = "M60A1RISEP77",
+                PrefabName = "M2BRADLEY",
                 Position = new Vector3(830.1946f, 13.3174f, 2677.554f),
                 Rotation = Quaternion.Euler(1.1279f, 301.266f, 2.0776f),
                 Allegiance = Faction.Blue,
-                DisplayName = "M60A1RISEP77 modded 1",
+                DisplayName = "M2BRADLEY modded 1",
                 IsMobile = true,
                 MobileDelay = 80f
             },
             new SpawnEntry
             {
-                PrefabName = "M60A1RISEP77",
+                PrefabName = "M2BRADLEY",
                 Position = new Vector3(878.1855f, 13.9952f, 2644.256f),
                 Rotation = Quaternion.Euler(0.5155f, 38.6991f, 0.8764f),
                 Allegiance = Faction.Blue,
-                DisplayName = "M60A1RISEP77 modded 2",
+                DisplayName = "M2BRADLEY modded 2",
                 IsMobile = true,
                 MobileDelay = 100f
             },

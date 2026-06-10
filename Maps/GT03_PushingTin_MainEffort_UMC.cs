@@ -78,22 +78,22 @@ namespace Hard_Mode {
         MobileDelay = 25f
     },
               new SpawnEntry { 
-        PrefabName = "M60A3", 
+        PrefabName = "M2BRADLEY", 
         Position = new Vector3(-3229.177f, 139.3588f, 430.521f),
 
         Rotation = Quaternion.Euler(3.2636f, 62.8328f, 357.0816f),
         Allegiance = Faction.Blue,
-        DisplayName = "m60a3 3m",
+        DisplayName = "M2 1M",
         IsMobile = true,
         MobileDelay = 30f
     },
               new SpawnEntry { 
-        PrefabName = "M60A3", 
+        PrefabName = "M2BRADLEY", 
         Position = new Vector3(-3274.14f, 141.0822f, 408.7377f),
 
         Rotation = Quaternion.Euler(2.0012f, 62.4298f, 357.9136f),
         Allegiance = Faction.Blue,
-        DisplayName = "m60a3 4m",
+        DisplayName = "M2 2M",
         IsMobile = true,
         MobileDelay = 35f
     },

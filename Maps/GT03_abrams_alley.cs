@@ -153,7 +153,7 @@ new SpawnEntry
                 Position = new Vector3(1928.377f, 51.0288f, -1121.505f),
                 Rotation = Quaternion.Euler(354.9498f, 228.0831f, 355.9422f),
                 Allegiance = Faction.Red,
-                DisplayName = "BMP-2 1"
+                DisplayName = "BMP-2 1M"
             },
             new SpawnEntry
             {
@@ -161,7 +161,7 @@ new SpawnEntry
                 Position = new Vector3(1941.994f, 51.4077f, -1135.152f),
                 Rotation = Quaternion.Euler(356.4658f, 226.0959f, 359.8655f),
                 Allegiance = Faction.Red,
-                DisplayName = "BMP-2 2"
+                DisplayName = "BMP-2 2M"
             },
             new SpawnEntry
             {
@@ -169,7 +169,7 @@ new SpawnEntry
                 Position = new Vector3(1887.6f, 47.7749f, -1104.829f),
                 Rotation = Quaternion.Euler(0.4542f, 231.8899f, 353.8273f),
                 Allegiance = Faction.Red,
-                DisplayName = "BMP-2 3"
+                DisplayName = "BMP-2 3M"
             }
         };
     }
