@@ -48,7 +48,7 @@ namespace Hard_Mode {
 
 
   public class GMPC : MelonMod {
-    public static MelonPreferences_Entry<bool> CfgNoMobile;
+    public static MelonPreferences_Entry<bool> CfgDisableEnemies;
     public static MelonPreferences_Entry<bool> CfgDisableSensorPatch;
 
     private static readonly Dictionary<string, Func<List<SpawnEntry>>>
@@ -83,6 +83,9 @@ namespace Hard_Mode {
 
     public override void OnInitializeMelon() {
       MelonPreferences_Category cfg = MelonPreferences.CreateCategory("HardMode");
+      CfgDisableEnemies = cfg.CreateEntry<bool>("DisableEnemies", false, "Disable extra spawned enemies");
+
+      CfgDisableEnemies.Comment = "Disables extra enemy spawns from this mod.";
       CfgDisableSensorPatch = cfg.CreateEntry<bool>("DisableSensorPatch", false, "Disable AI having increased awareness");
       CfgDisableSensorPatch.Comment = "Disables the sensor patch that increases AI awareness. Applies on game restart";
 
@@ -96,7 +99,11 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
       //LoggerInstance.Msg($"Loaded scene {sceneName}, trying to patch game...");
 
       //StateController.RunOrDefer(GameState.GameReady, new GameStateEventHandler(StartBlueLogger), GameStatePriority.Medium);
-
+      if (CfgDisableEnemies.Value)
+      {
+        MelonLogger.Msg("Extra enemies disabled");
+        return;
+      }
       if (!_sceneSpawns.TryGetValue(sceneName, out var getSpawns))
         return;
 
@@ -138,9 +145,6 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
               (float)codes[i].operand == 30f) {
             codes[i].operand = 180f;
           }
-          //180 degrees both ways = 360 degree coverage
-
-          //250000f (500m squared) -> 1000000f (1000m squared)
           if (codes[i].opcode == OpCodes.Ldc_R4 &&
               (float)codes[i].operand == 250000f) {
             codes[i].operand = 1000000f;
@@ -195,7 +199,7 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
     {
         int coroutineId = ++_coroutineCounter;
         float spawnTime = Time.time;
-        MelonLogger.Msg($"[{coroutineId}] Coroutine started at Time.time={spawnTime:F1} for {targetVehicle.gameObject.name} delay={delay}");
+        //MelonLogger.Msg($"[{coroutineId}] Coroutine started at Time.time={spawnTime:F1} for {targetVehicle.gameObject.name} delay={delay}");
 
         while (MissionStateController.CurrentState == MissionState.Planning)
             yield return null;
@@ -228,18 +232,18 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
         waypoint.AvoidObstacles = true;
         waypoint.FollowMode = WaypointHolder.FollowModes.Automatic;
 
-        MelonLogger.Msg($"[{coroutineId}] Pre-SetupDriverController pos={targetVehicle.transform.position}");
+        //MelonLogger.Msg($"[{coroutineId}] Pre-SetupDriverController pos={targetVehicle.transform.position}");
         try { aiController.SetupDriverController(); }
         catch (Exception ex)
         {
             MelonLogger.Error($"[{coroutineId}] SetupDriverController threw: {ex}");
             yield break;
         }
-        MelonLogger.Msg($"[{coroutineId}] Post-SetupDriverController pos={targetVehicle.transform.position}");
+        //MelonLogger.Msg($"[{coroutineId}] Post-SetupDriverController pos={targetVehicle.transform.position}");
 
         aiController.TargetSpeed = 45f;
 
-        MelonLogger.Msg($"[{coroutineId}] Pre-StartDriveToWaypoint waypoint pos={waypointGo.transform.position}");
+        //MelonLogger.Msg($"[{coroutineId}] Pre-StartDriveToWaypoint waypoint pos={waypointGo.transform.position}");
         var nn = AstarPath.active?.GetNearest(targetVehicle.transform.position);
         var nn2 = AstarPath.active?.GetNearest(waypointGo.transform.position);
         try { aiController.StartDriveToWaypoint(waypoint); }
@@ -269,7 +273,7 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
                 if (Time.time - slowSince >= 12f)
                 {
                     aiController.TargetSpeed = 45f;
-                    MelonLogger.Msg("Speed restored");
+                    //MelonLogger.Msg("Speed restored");
                     slowSince = -1f;
                 }
                 yield return new WaitForSeconds(1f);
@@ -380,7 +384,7 @@ public override void OnSceneWasLoaded(int buildIndex, string sceneName) {
         }
         else
         {
-          LoggerInstance.Error($"entry.IsMobile returned false");
+          //LoggerInstance.Error($"entry.IsMobile returned false");
         }
       }
 
